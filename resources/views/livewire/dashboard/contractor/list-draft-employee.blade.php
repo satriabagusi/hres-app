@@ -1,42 +1,44 @@
 <div>
     <div class="row mb-3 justify-content-center">
-        @if($projectContractId)
-        <div class="col-6">
-            <div class="card card-body mb-3" wire:ignore>
-                <form wire:submit.prevent="uploadEmployee" class="space-y-4 mb-4">
-                    <div>
-                        <label for="employee_xls">Upload data Pekerja menggunakan Excel</label>
-                        <input type="file" wire:model="employee_xls" id="filepond-upload" class="filepond"
-                            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                            multiple="false" />
-                        {{-- Show error if file is not valid --}}
-                        @error('employee_xls')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-                    </div>
+        @if ($projectContractId)
+            <div class="col-6">
+                <div class="card card-body mb-3" wire:ignore>
+                    <form wire:submit.prevent="uploadEmployee" class="space-y-4 mb-4">
+                        <div>
+                            <label for="employee_xls">Upload data Pekerja menggunakan Excel</label>
+                            <input type="file" wire:model="employee_xls" id="filepond-upload" class="filepond"
+                                accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                multiple="false" />
+                            {{-- Show error if file is not valid --}}
+                            @error('employee_xls')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
-                        <span wire:loading>
-                            <span class="spinner-border spinner-border-sm me-2" role="status"></span> Memproses File
-                            ...
-                        </span>
-                        <span wire:loading.remove>
-                            <i class="ti ti-upload"></i> Upload Data
-                        </span>
-                    </button>
-                </form>
+                        <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                            <span wire:loading>
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span> Memproses
+                                File
+                                ...
+                            </span>
+                            <span wire:loading.remove>
+                                <i class="ti ti-upload"></i> Upload Data
+                            </span>
+                        </button>
+                    </form>
 
-                @php
-                    $companyName = Auth::user()->company_name;
-                @endphp
-                <p class="text-secondary text-muted text-center mb-2">Untuk format file, silakan download template di
-                    bawah
-                    ini.</p>
-                <a class="btn btn-info" href="{{ route('contractor.download-template-pekerja') }}">
-                    <i class="ti ti-download"></i> &nbsp; Download Template Pekerja
-                </a>
+                    @php
+                        $companyName = Auth::user()->company_name;
+                    @endphp
+                    <p class="text-secondary text-muted text-center mb-2">Untuk format file, silakan download template
+                        di
+                        bawah
+                        ini.</p>
+                    <a class="btn btn-info" href="{{ route('contractor.download-template-pekerja') }}">
+                        <i class="ti ti-download"></i> &nbsp; Download Template Pekerja
+                    </a>
+                </div>
             </div>
-        </div>
         @endif
         <hr>
         <div class="col-12">
@@ -162,9 +164,11 @@
                                             <td>
                                                 @if (
                                                     $item->photo &&
-                                                        $item->ktp_document && $item->form_b_document &&
-                                                        (!$item->age_justification_document || \Carbon\Carbon::parse($item->birth_date)->age <= 56))
-                                                    <button class="btn btn-ghost-green" type="button">
+                                                        $item->ktp_document &&
+                                                        $item->form_b_document &&
+                                                        ($item->age_justification_document || \Carbon\Carbon::parse($item->birth_date)->age <= 56))
+                                                    <button class="btn btn-ghost-green btn-submit-employee"
+                                                        type="button" data-employee-id="{{ $item->id }}">
                                                         <i class="ti ti-circle-check"></i>
                                                         Ajukan
                                                     </button>
@@ -271,7 +275,8 @@
                             @if ($ktpUrl)
                                 <div class="mt-2">
                                     <a href="{{ $ktpUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm" onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                        class="btn btn-outline-primary btn-sm"
+                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
                                         <i class="ti ti-file"></i> Lihat Dokumen KTP
                                     </a>
                                 </div>
@@ -279,7 +284,8 @@
                             @if ($photoUrl)
                                 <div class="mt-2">
                                     <a href="{{ $photoUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm" onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                        class="btn btn-outline-primary btn-sm"
+                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
                                         <i class="ti ti-file"></i> Lihat Dokumen Pas Foto
                                     </a>
                                 </div>
@@ -287,7 +293,8 @@
                             @if ($formBUrl)
                                 <div class="mt-2">
                                     <a href="{{ $formBUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm" onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                        class="btn btn-outline-primary btn-sm"
+                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
                                         <i class="ti ti-file"></i> Lihat Dokumen Form B
                                     </a>
                                 </div>
@@ -295,7 +302,8 @@
                             @if ($ageJustificationUrl)
                                 <div class="mt-2">
                                     <a href="{{ $ageJustificationUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm" onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                        class="btn btn-outline-primary btn-sm"
+                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
                                         <i class="ti ti-file"></i> Lihat Dokumen Keterangan Umur
                                     </a>
                                 </div>
@@ -652,7 +660,7 @@
                             });
 
                         }
-                    }else{
+                    } else {
                         uploadedAgeJustificationTmp = null;
                         document.getElementById('justifikasi-usia-element').style.display = 'none';
                     }
@@ -681,7 +689,7 @@
             document.getElementById('btn-submit-all-employee').addEventListener('click', () => {
                 Swal.fire({
                     title: 'Ajukan semua data Pekerja? ',
-                    html: '<span class=" text-muted">Pekerja yang di ajukan hanya pekerja yang sudah di upload dokumen nya, jika belum makan tidak akan di ajukan secara otomatis</span>',
+                    html: '<span class=" text-muted">Pekerja yang di ajukan hanya pekerja yang sudah di upload dokumen nya, jika belum maka tidak akan di ajukan secara otomatis</span>',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: 'Ya, ajukan!',
@@ -700,6 +708,28 @@
                 // Reset the pond after successful upload
                 modalDocument.hide();
             })
+
+            document.querySelectorAll('.btn-submit-employee').forEach((button) => {
+                button.addEventListener('click', () => {
+                    Swal.fire({
+                        title: 'Ajukan data Pekerja? ',
+                        html: '<span class=" text-muted">Ajukan Pekerja ini ?</span>',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, ajukan!',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#388cda',
+                        cancelButtonColor: '#dc3545',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var employeeId = button.getAttribute('data-employee-id');
+                            Livewire.dispatch('submitEmployee', {
+                                id: employeeId
+                            });
+                        }
+                    })
+                });
+            });
 
         });
     </script>
