@@ -10,11 +10,14 @@ use App\Livewire\Dashboard\Contractor\ListDraftEmployee;
 use App\Livewire\Dashboard\Contractor\ListEmployee;
 use App\Livewire\Dashboard\Contractor\ListProjectContract;
 use App\Livewire\Dashboard\Home;
+use App\Models\ContractorWorker;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\Snappy\Facades\SnappyPdf as SnappyPDF;
+use function Spatie\LaravelPdf\Support\pdf;
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/login', Login::class)->name('login');
@@ -42,8 +45,24 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/contractor/list-draft-employee', ListDraftEmployee::class)->name('contractor.list-draft-employee');
     Route::get('/contractor/list-project-contract', ListProjectContract::class)->name('contractor.list-project-contract');
 
-    Route::get('/contractor/download-template-pekerja', function() {
+    Route::get('/contractor/download-template-pekerja', function () {
         $companyName = Auth::user()->company_name ?? 'PT. Contoh Perusahaan';
         return Excel::download(new TemplatePekerjaExport(ucwords(str_replace('-', ' ', $companyName))), 'template_pekerja.xlsx');
     })->name('contractor.download-template-pekerja');
+
+
+    Route::get('/print-view/employee-id-badge/{id}', function ($id) {
+        $employee = ContractorWorker::with(['medical_review', 'security_review', 'user', 'project_contractor'])->findOrFail($id);
+
+        if($employee->medical_review->status != 'approved' || $employee->security_review->status != 'approved'){
+            return abort(403, 'Data pekerja belum diverifikasi');
+        }
+
+        return pdf()->view('layouts.layout-id-badge', compact('employee'))->paperSize(85.6, 54)->name('ID-Badge-' . $employee->full_name . '-' . time() . '.pdf');
+
+    })->name('print-view.employee-id-badge');
+});
+
+Route::get('ok', function () {
+    return "ok";
 });

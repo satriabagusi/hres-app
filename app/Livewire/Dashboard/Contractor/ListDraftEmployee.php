@@ -325,6 +325,46 @@ class ListDraftEmployee extends Component
         }
     }
 
+    #[On('submitEmployee')]
+    public function submitEmployee($id){
+        DB::beginTransaction();
+
+        try {
+            $employee = ContractorWorker::find($id);
+            $employee->status = 'submitted';
+            $employee->save();
+
+            MedicalReview::updateOrCreate(
+                ['worker_id' => $employee->id],
+                [
+                    'reviewed_by' => Auth::id(),
+                    'user_id' => Auth::id(),
+                    'status' => 'on_review',
+                    'reviewed_at' => now(),
+                ]
+            );
+
+            SecurityReview::updateOrCreate(
+                ['worker_id' => $employee->id],
+                [
+                    'reviewed_by' => Auth::id(),
+                    'user_id' => Auth::id(),
+                    'status' => 'on_review',
+                    'reviewed_at' => now(),
+                ]
+            );
+
+            DB::commit();
+
+            $this->dispatch('swal', title: 'Sukses', text: 'Pekerja berhasil diajukan.', icon: 'success');
+            $this->resetPage();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error('Error submitting employee: ' . $th->getMessage());
+            $this->dispatch('swal', title: 'Error', text: 'Terjadi kesalahan saat mengajukan pekerja.', icon: 'error');
+        }
+    }
+
 
     #[Layout(
         'layouts.dashboard',

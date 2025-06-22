@@ -21,6 +21,11 @@
 <link rel="stylesheet"
     href="{{ asset('libs/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css') }}" />
 
+
+
+
+
+
 <link rel="stylesheet" href="{{ asset('libs/litepicker/dist/css/litepicker.css') }}" />
 
 
@@ -92,8 +97,8 @@
     }
 
     .swal2-popup .swal2-show .swal2-modal {
-        width: 378px !important,
-            overflow: visible !important;
+        width: 468px !important,
+        overflow: visible !important;
     }
 
     .table-responsive .dropdown,

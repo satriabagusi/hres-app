@@ -1,0 +1,246 @@
+/* ==== ID Card Size & Layout ==== */
+@page {
+    size: 85.6mm 54mm;
+    margin: 0;
+    /* Hilangkan semua margin halaman */
+    padding: 0;
+    /* Jika perlu */
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8px;
+    color: #212529;
+    margin: 0;
+    padding: 0;
+}
+
+.photo {
+    width: 24mm;
+    height: 24mm;
+    background: #eee;
+    border: 1px solid #ccc;
+    margin-bottom: 0.5rem;
+    object-fit: cover;
+}
+
+.title {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.info {
+    margin-bottom: 0.25rem;
+}
+
+.back-notes {
+    font-size: 0.4rem;
+    /* line-height: 1.2; */
+}
+
+/* ==== Flex & Grid Utilities ==== */
+.d-flex {
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.flex-grow-1 {
+    flex: 1 0 auto;
+}
+
+/* ==== Grid system ==== */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.col-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+}
+
+.col-1 {
+    flex: 0 0 8.333%;
+    max-width: 8.333%;
+}
+
+.col-2 {
+    flex: 0 0 16.666%;
+    max-width: 16.666%;
+}
+
+.col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+}
+
+.col-4 {
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+}
+
+.col-5 {
+    flex: 0 0 41.666%;
+    max-width: 41.666%;
+}
+
+.col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-7 {
+    flex: 0 0 58.333%;
+    max-width: 58.333%;
+}
+
+.col-8 {
+    flex: 0 0 66.666%;
+    max-width: 66.666%;
+}
+
+.col-9 {
+    flex: 0 0 75%;
+    max-width: 75%;
+}
+
+.col-10 {
+    flex: 0 0 83.333%;
+    max-width: 83.333%;
+}
+
+.col-11 {
+    flex: 0 0 91.666%;
+    max-width: 91.666%;
+}
+
+.col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+/* ==== Margin & padding utilities ==== */
+.mt-1 {
+    margin-top: 0.25rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.p-1 {
+    padding: 0.25rem;
+}
+
+.p-2 {
+    padding: 0.5rem;
+}
+
+.p-3 {
+    padding: 1rem;
+}
+
+/* ==== Font & text utilities ==== */
+.fw-bold {
+    font-weight: bold;
+}
+
+.fst-italic {
+    font-style: italic;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.text-muted {
+    color: #6c757d;
+}
+
+.text-primary {
+    color: #0d6efd;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.text-success {
+    color: #198754;
+}
+
+/* ==== Background utilities ==== */
+.bg-light {
+    background-color: #f8f9fa;
+}
+
+.bg-dark {
+    background-color: #212529;
+    color: white;
+}
+
+.bg-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.bg-success {
+    background-color: #198754;
+    color: white;
+}
+
+.bg-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* ==== Table styles ==== */
+/* table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #dee2e6;
+            padding: 0.5rem;
+        }
+
+        table th {
+            background-color: #f8f9fa;
+            text-align: left;
+            font-weight: bold;
+        } */

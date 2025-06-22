@@ -90,7 +90,8 @@
                                                     Disetujui (Klik Untuk Melihat)
                                                 </a>
                                             @elseif($item->medical_review->status == 'rejected')
-                                                <span class="badge bg-red text-red-fg" wire:click='alasanRejectMcu({{ $item->id }})'>Ditolak</span>
+                                                <span class="badge bg-red text-red-fg"
+                                                    wire:click='alasanRejectMcu({{ $item->id }})'>Ditolak</span>
                                             @endif
                                         </td>
                                         <td class="sort-status">
@@ -117,7 +118,10 @@
                                         </td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-blue"
-                                                wire:click='detailData({{ $item->id }})'>Detail Data</button>
+                                                wire:click='detailData({{ $item->id }})'>
+                                                <i class="ti ti-file-description"></i>
+                                                Detail Data
+                                            </button>
                                             <br>
                                             @if (Auth::user()->role == 'medical')
                                                 <button class="btn btn-sm btn-outline-teal"
@@ -126,17 +130,20 @@
                                                 <br>
                                                 <button class="btn btn-sm btn-outline-pink btn-decline-mcu"
                                                     data-id='{{ $item->id }}'>
-                                                    Tolak Verfikasi
+                                                    Tolak Verfikasi MCU
                                                 </button>
                                             @endif
                                             @if (Auth::user()->role == 'security')
                                                 <button class="btn btn-sm btn-outline-teal"
-                                                    wire:click="modalVerificationSecurity({{ $item->id }})">Setujui
-                                                    Verifikasi Security</button>
+                                                    wire:click="modalVerificationSecurity({{ $item->id }})">
+                                                    <i class='ti ti-check'></i>
+                                                    Setujui Verifikasi Security
+                                                </button>
                                                 <br>
                                                 <button class="btn btn-sm btn-outline-pink btn-decline-security"
                                                     data-id='{{ $item->id }}'>
-                                                    Tolak Verfikasi
+                                                    <i class='ti ti-x'></i>
+                                                    Tolak Verfikasi Security
                                                 </button>
                                             @endif
                                             @if (Auth::user()->role == 'hse')
@@ -146,7 +153,80 @@
                                                 <br>
                                                 <button class="btn btn-sm btn-outline-pink btn-decline-hse"
                                                     data-id='{{ $item->id }}'>
-                                                    Tolak Verfikasi
+                                                    Tolak Verfikasi HSE
+                                                </button>
+                                            @endif
+                                            @if (Auth::user()->role == 'administrator')
+                                                {{-- Button Dropdown --}}
+                                                <div class="dropdown">
+                                                    <button
+                                                        class="btn btn-sm btn-outline-orange text-decoration-none dropdown-toggle"
+                                                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="ti ti-checkbox"></i>
+                                                        Menu Verifikasi
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li class="text-teal">
+                                                            <a class="dropdown-item"
+                                                                wire:click='modalUploadMCU({{ $item->id }})'>
+                                                                <i class="ti ti-check"></i>
+                                                                Setujui Verifikasi Medical
+                                                            </a>
+                                                        </li>
+                                                        <li class="text-pink">
+                                                            <a class="dropdown-item btn-decline-mcu"
+                                                                data-id='{{ $item->id }}'>
+                                                                <i class="ti ti-x"></i>
+                                                                Tolak Verfikasi MCU
+                                                            </a>
+                                                        </li>
+                                                        <li class="text-teal">
+                                                            <a class="dropdown-item"
+                                                                wire:click="modalVerificationSecurity({{ $item->id }})">
+                                                                <i class="ti ti-check"></i>
+                                                                Setujui Verifikasi Security
+                                                            </a>
+                                                        </li>
+                                                        <li class="text-pink">
+                                                            <a class="dropdown-item btn-decline-security"
+                                                                data-id='{{ $item->id }}'>
+                                                                <i class="ti ti-x"></i>
+                                                                Tolak Verfikasi Security
+                                                            </a>
+                                                        </li>
+                                                        <li class="text-teal">
+                                                            <a class="dropdown-item"
+                                                                wire:click="modalVerificationHSE({{ $item->id }})">
+                                                                <i class="ti ti-check"></i>
+                                                                Setujui Verifikasi HSE
+                                                            </a>
+                                                        </li>
+                                                        <li class="text-pink">
+                                                            <a class="dropdown-item btn-decline-hse"
+                                                                data-id='{{ $item->id }}'>
+                                                                <i class="ti ti-x"></i>
+                                                                Tolak Verfikasi HSE
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <button class="btn btn-sm btn-outline-pink btn-delete-employee"
+                                                    data-fullname="{{ $item->full_name }}"
+                                                    data-id="{{ $item->id }}">
+                                                    <i class="ti ti-trash"></i>
+                                                    Hapus Pekerja
+                                                </button>
+                                            @endif
+
+                                            @if (
+                                                (Auth::user()->role === 'administrator' || Auth::user()->role === 'security') &&
+                                                    $item->medical_review->status === 'approved' &&
+                                                    $item->security_review->status === 'approved' &&
+                                                    !empty($item->induction_card_number))
+                                                <button class="btn btn-sm btn-outline-purple btn-print-id-badge"
+                                                    data-fullname="{{ $item->full_name }}"
+                                                    data-id="{{ $item->id }}">
+                                                    <i class="ti ti-printer"></i> Cetak ID Badge
                                                 </button>
                                             @endif
 
@@ -198,35 +278,67 @@
                 </div>
                 <div class="modal-body" wire:ignore>
                     <form wire:submit.prevent="uploadMCUFile">
-                        <div class="mb-3 col-auto">
-                            <label for="mcu_document">Upload File MCU</label>
-                            <input type="file" id="filepond-upload-mcu" class="filepond" accept="application/pdf"
-                                multiple="false" />
-                            @error('mcu_document')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
+                        <div class="row">
+                            <div class="mb-3 col-6">
+                                <label for="mcu_document">Upload File MCU</label>
+                                <input type="file" id="filepond-upload-mcu" class="filepond"
+                                    accept="application/pdf" multiple="false" />
+                                @error('mcu_document')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="mb-3 col-6">
+                                <label for="expiry_date" class="form-label">Tanggal Berakhir MCU</label>
+                                <div class="input-icon mb-2">
+                                    <input class="form-control" placeholder="Tanggal Berakhir MCU"
+                                        id="expiry_date_mcu" />
+                                    <span class="input-icon-addon">
+                                        <i class="ti ti-calendar"></i>
+                                    </span>
+                                </div>
+                                @error('expiry_date')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
                         </div>
-                        <div class="mb-3 col-auto">
-                            <label class="form-label">Hazard Status</label>
-                            <select class="form-select" id="select-hazard-status">
-                                <option value="low_risk" class="text-uppercase">Low Risk</option>
-                                <option value="medium_risk" class="text-uppercase">Medium Risk</option>
-                                <option value="high_risk" class="text-uppercase">High Risk</option>
-                            </select>
+                        <div class="row">
+                            <div class="mb-3 col-6">
+                                <div>
+                                    <label class="form-label">Hazard Status</label>
+                                    <select class="form-select" id="select-hazard-status">
+                                        <option value="low_risk" class="text-uppercase">Low Risk</option>
+                                        <option value="medium_risk" class="text-uppercase">Medium Risk</option>
+                                        <option value="high_risk" class="text-uppercase">High Risk</option>
+                                    </select>
+                                    @error('hazard_status')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Fit Status</label>
+                                    <select class="form-select" id="select-fit-status">
+                                        <option value="unfit" class="text-red">Unfit</option>
+                                        <option value="fit_with_note" class="text-teal">Fit with Note</option>
+                                        <option value="follow_up" class="text-yellow">Follow Up</option>
+                                        <option value="fit" class="text-green">Fit</option>
+                                    </select>
+                                    @error('fit_status')
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="mb-3 col-6">
+                                <label class="form-label">Catatan</label>
+                                <textarea class="form-control" rows="4" placeholder="Catatan" wire:model="notes" id="notes"></textarea>
+                                @error('notes')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+
                         </div>
-                        <div class="mb-3 col-auto">
-                            <label class="form-label">Fit Status</label>
-                            <select class="form-select" id="select-fit-status">
-                                <option value="unfit" class="text-red">Unfit</option>
-                                <option value="fit_with_note" class="text-teal">Fit with Note</option>
-                                <option value="follow_up" class="text-yellow">Follow Up</option>
-                                <option value="fit" class="text-green">Fit</option>
-                            </select>
-                        </div>
-                        <div class="mb-3 col-auto">
-                            <label class="form-label">Catatan</label>
-                            <textarea class="form-control" rows="2" placeholder="Catatan" wire:model="notes" id="notes"></textarea>
-                        </div>
+
+
                     </form>
 
                 </div>
@@ -448,6 +560,30 @@
                     document.getElementById('notes').addEventListener('change', (e) => {
                         @this.set('notes', e.target.value);
                     })
+
+                    const expiryDateMCU = document.getElementById('expiry_date_mcu');
+                    if (expiryDateMCU) {
+                        new Litepicker({
+                            element: expiryDateMCU,
+                            format: 'DD-MM-YYYY',
+                            buttonText: {
+                                previousMonth: '<i class="ti ti-chevron-left"></i>',
+                                nextMonth: '<i class="ti ti-chevron-right"></i>',
+                            },
+                            minDate: new Date(),
+                            mobileFriendly: true,
+                            singleMode: true,
+                            autoApply: true,
+                            setup(picker) {
+                                picker.on('selected', (date) => {
+                                    const formattedDate = date.format('YYYY-MM-DD');
+                                    console.log('Expiry date selected:',
+                                        formattedDate);
+                                    @this.set('expiry_date', formattedDate);
+                                })
+                            }
+                        });
+                    }
                 });
 
                 document.getElementById('modalDocumentMCU').addEventListener('hidden.bs.modal', () => {
@@ -473,9 +609,7 @@
             })
 
             Livewire.on('uploadMCUSuccess', (e) => {
-                alert('ok')
                 uploadedDocMcuTmp = null;
-
                 modalDocumentMCU.hide();
                 if (Filepond.find(document.getElementById('filepond-upload-mcu'))) {
                     Filepond.find(document.getElementById('filepond-upload-mcu'))?.removeFile();
@@ -682,6 +816,55 @@
                     allowEscapeKey: false,
                     confirmButtonColor: '#3085d6',
                 })
+            })
+
+            document.querySelectorAll('.btn-delete-employee').forEach(button => {
+                var idEmp = button.getAttribute('data-id');
+                var fullname = button.getAttribute('data-fullname');
+                button.addEventListener('click', () => {
+                    Swal.fire({
+                        title: 'Hapus Data',
+                        html: `<p>Anda yakin ingin menghapus pekerja <b class='text-pink'>${fullname}</b> ?</p> <p>
+                            <small class="text-muted">Data yang telah dihapus tidak dapat dikembalikan.</small></p>`,
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Hapus',
+                        cancelButtonText: 'Batal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Livewire.dispatch('deleteEmployee', {
+                                id: idEmp
+                            });
+                        }
+                    })
+                })
+            })
+
+            document.querySelectorAll('.btn-print-id-badge').forEach(button => {
+                var idEmp = button.getAttribute('data-id');
+                var fullname = button.getAttribute('data-fullname');
+                button.addEventListener('click', () => {
+                    Swal.fire({
+                        title: 'Cetak ID Badge',
+                        html: `<p>Anda yakin ingin mencetak ID Badge pekerja <b class='text-pink'>${fullname}</b> ?</p>`,
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: '<i class="ti ti-printer"></i>Cetak',
+                        cancelButtonText: 'Batal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Livewire.dispatch('printIdBadge', {
+                                id: idEmp
+                            });
+                        }
+                    })
+                })
+            })
+
+            Livewire.on('printBadge', (e) => {
+                window.open(e.url, 'popup', 'width=800,height=600');
             })
 
         });
