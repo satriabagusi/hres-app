@@ -15,14 +15,12 @@
 <script src="{{ asset('libs/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js') }}" ></script>
 <script src="{{ asset('libs/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.min.js') }}" ></script>
 <script src="{{ asset('libs/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.min.js') }}" ></script>
-
-
 <script  src="{{ asset('libs/filepond-plugin-file-encode/dist/filepond-plugin-file-encode.min.js') }}" ></script>
+<script  src="{{ asset('libs/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.min.js') }}" ></script>
+<script  src="{{ asset('libs/cropperjs/dist/cropper.min.js') }}" ></script>
+
 
 <script src="{{ asset('libs/litepicker/dist/litepicker.js') }}"></script>
-
-
-
 
 <!-- Tabler Core -->
 <script src="{{ asset('js/tabler.js') }}"></script>

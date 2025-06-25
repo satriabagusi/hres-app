@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('reviewed_by')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['on_review','approved', 'rejected']);
             $table->text('notes')->nullable();
-            $table->enum('area', ['area-all-area', 'area-tangki', 'area-isbl-osbl']);
             $table->timestamp('reviewed_at');
             $table->timestamps();
         });

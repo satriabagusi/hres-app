@@ -1,12 +1,14 @@
 <div>
-    @if($projectContractId)
-    <div class="col-12 mb-3">
-        <a class="btn btn-cyan" href="{{ route('contractor.list-draft-employee', ['project_contract_id' => $projectContractId]) }}"><i class="ti ti-upload"></i> &nbsp;
-            Upload/Draft Pekerja</a>
-        <p class="text-muted mt-2">Jika data pekerja tidak muncul disini silahkan check pada Draft Data Pekerja (ada
-            kemungkinan data belum di submit atau di reject terkait dokumen)</p>
-    </div>
-    <hr>
+    @if ($projectContractId)
+        <div class="col-12 mb-3">
+            <a class="btn btn-cyan"
+                href="{{ route('contractor.list-draft-employee', ['project_contract_id' => $projectContractId]) }}"><i
+                    class="ti ti-upload"></i> &nbsp;
+                Upload/Draft Pekerja</a>
+            <p class="text-muted mt-2">Jika data pekerja tidak muncul disini silahkan check pada Draft Data Pekerja (ada
+                kemungkinan data belum di submit atau di reject terkait dokumen)</p>
+        </div>
+        <hr>
     @endif
     <div class="col-12">
         <div class="card">
@@ -64,7 +66,7 @@
                                         <td class="">{{ $item->position }}</td>
                                         <td class="sort-status">
                                             @if ($item->status == 'approved')
-                                                <span class="badge bg-lime text-lime-fg">Disetujui</span>
+                                                <span class="badge bg-lime text-lime-fg">ID Badge Tercetak</span>
                                             @elseif($item->status == 'draft')
                                                 <span class="badge bg-orange text-orange-fg">Draft</span>
                                             @elseif($item->status == 'submitted')

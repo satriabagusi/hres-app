@@ -22,7 +22,7 @@
         <div class="navbar-nav flex-row d-lg-none">
             <div class="nav-item dropdown">
                 <a class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                    <span class="avatar avatar-sm" style="background-image: url(./img/avatar.png)"></span>
+                    <span class="avatar avatar-sm" style="background-image: url(https://ui-avatars.com/api/?name={{ Str::remove('.' , Str::replace(' ', '+', Auth::user()->name)) }})"></span>
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ Auth::user()->name }}</div>
                         <div class="mt-1 small text-secondary">{{ Auth::user()->company_name }}</div>
@@ -53,7 +53,7 @@
                             role="button" aria-expanded="true">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <!-- Download SVG icon from http://tabler.io/icons/icon/layout-2 -->
-                                <i class="ti ti-user-shield fs-2"></i>
+                                <i class="ti ti-building-factory fs-2"></i>
                             </span>
                             <span class="nav-link-title me-1">Data Kontraktor</span>
                         </a>
@@ -62,7 +62,7 @@
                                 <a class="dropdown-item {{ $employee_data_active ?? '' }}"
                                     href="{{ route('admin.list-employee') }}">
                                     <span class="nav-link-icon">
-                                        <i class="ti ti-user-plus"></i>
+                                        <i class="ti ti-user-square"></i>
                                     </span>
                                     <span class="nav-link-title">
                                         Data Pekerja
@@ -71,7 +71,7 @@
                                 <a class="dropdown-item {{ $company_data_active ?? '' }}"
                                     href="{{ route('admin.list-company') }}">
                                     <span class="nav-link-icon">
-                                        <i class="ti ti-user-plus"></i>
+                                        <i class="ti ti-buildings"></i>
                                     </span>
                                     <span class="nav-link-title">
                                         Data Perusahaan
@@ -129,9 +129,9 @@
                         <a class="nav-link" href="{{ route('contractor.list-project-contract') }}">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <!-- Download SVG icon from http://tabler.io/icons/icon/home -->
-                                <i class="ti ti-users fs-2"></i>
+                                <i class="ti ti-contract fs-2"></i>
                             </span>
-                            <span class="nav-link-title">Data Kontrak Kerja</span>
+                            <span class="nav-link-title">Kontrak Kerja</span>
                         </a>
                     </li>
                 @endif

@@ -33,7 +33,7 @@
                             <thead>
                                 <tr>
                                     <th>NO</th>
-                                    <th>Nama Proyek</th>
+                                    <th >Nama Proyek</th>
                                     <th>No. Kontrak/Memo</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
@@ -47,7 +47,7 @@
                                             {{-- Show number based on current page --}}
                                             {{ $loop->iteration + ($projects->currentPage() - 1) * $projects->perPage() }}
                                         </td>
-                                        <td>
+                                        <td width="40%">
                                             <span class="text-body">{{ $project->project_name }}</span>
                                         </td>
                                         <td class="">
@@ -62,7 +62,7 @@
                                             {{ \Carbon\Carbon::parse($project->end_date)->format('d-m-Y') }}</td>
                                         <td class="text-center">
                                             <a href="{{ route('contractor.list-employee', ['project_contract_id' => $project->id]) }}"
-                                                class="btn btn-primary btn-sm">Detail Pekerja</a>
+                                                class="btn btn-azure">Detail Pekerja</a>
                                         </td>
                                     </tr>
                                 @empty

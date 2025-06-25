@@ -5,6 +5,7 @@ namespace App\Livewire\Dashboard\Contractor;
 use App\Exports\DataPekerjaImport;
 use App\Models\ContractorWorker;
 use App\Models\MedicalReview;
+use App\Models\ProjectContractor;
 use App\Models\SecurityReview;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -155,13 +156,29 @@ class ListDraftEmployee extends Component
             return;
         }
 
+        $employee = ContractorWorker::find($this->selectedEmployeeId);
+
+        if (!$employee) {
+            $this->dispatch('swal', title: 'Error', text: 'Pekerja tidak ditemukan.', icon: 'error');
+            return;
+        }
+
+        // Hitung usia pekerja
+        $age = \Carbon\Carbon::parse($employee->birth_date)->age;
+        $ageDocRequired = $age > 56;
+
         if (
-            !($this->ktp_document instanceof TemporaryUploadedFile) &&
-            !($this->photo_document instanceof TemporaryUploadedFile) &&
-            !($this->form_b_document instanceof TemporaryUploadedFile) &&
-            !($this->age_justification_document instanceof TemporaryUploadedFile)
+            !$this->ktp_document &&
+            !$this->photo_document &&
+            !$this->form_b_document &&
+            (!$this->age_justification_document && !$ageDocRequired)
         ) {
-            $this->dispatch('swal', title: 'Error', text: 'Silahkan upload minimal satu dokumen.', icon: 'error');
+            $this->dispatch('swal', title: 'Error', text: 'Silakan upload minimal satu dokumen.', icon: 'error');
+            return;
+        }
+
+        if ($ageDocRequired && !$this->age_justification_document) {
+            $this->dispatch('swal', title: 'Error', text: 'Pekerja di atas 56 tahun wajib upload dokumen justifikasi usia.', icon: 'error');
             return;
         }
 
@@ -200,9 +217,13 @@ class ListDraftEmployee extends Component
                 File::makeDirectory($destinationPath, 0755, true);
             }
 
-
             if ($this->ktp_document) {
-                $ktpFileName =  time() . "_" . uniqid() . '.' . $this->ktp_document->getClientOriginalExtension();
+                // Hapus file lama
+                if ($employee->ktp_document && File::exists($destinationPath . '/' . $employee->ktp_document)) {
+                    File::delete($destinationPath . '/' . $employee->ktp_document);
+                }
+
+                $ktpFileName = time() . "_" . uniqid() . '.' . $this->ktp_document->getClientOriginalExtension();
                 $storeKtp = File::move($this->ktp_document->getRealPath(), $destinationPath . '/' . $ktpFileName);
                 if (!$storeKtp) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file KTP.', icon: 'error');
@@ -210,7 +231,12 @@ class ListDraftEmployee extends Component
                 }
                 $employee->ktp_document = $ktpFileName;
             }
+
             if ($this->photo_document) {
+                if ($employee->photo && File::exists($destinationPath . '/' . $employee->photo)) {
+                    File::delete($destinationPath . '/' . $employee->photo);
+                }
+
                 $photoFileName = time() . "_" . uniqid() . '.' . $this->photo_document->getClientOriginalExtension();
                 $storePhoto = File::move($this->photo_document->getRealPath(), $destinationPath . '/' . $photoFileName);
                 if (!$storePhoto) {
@@ -219,16 +245,26 @@ class ListDraftEmployee extends Component
                 }
                 $employee->photo = $photoFileName;
             }
+
             if ($this->form_b_document) {
+                if ($employee->form_b_document && File::exists($destinationPath . '/' . $employee->form_b_document)) {
+                    File::delete($destinationPath . '/' . $employee->form_b_document);
+                }
+
                 $formBFileName = time() . "_" . uniqid() . '.' . $this->form_b_document->getClientOriginalExtension();
-                $storeMcu = File::move($this->form_b_document->getRealPath(), $destinationPath . '/' . $formBFileName);
-                if (!$storeMcu) {
-                    $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file MCU.', icon: 'error');
+                $storeFormB = File::move($this->form_b_document->getRealPath(), $destinationPath . '/' . $formBFileName);
+                if (!$storeFormB) {
+                    $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file Form B.', icon: 'error');
                     return;
                 }
                 $employee->form_b_document = $formBFileName;
             }
+
             if ($this->age_justification_document) {
+                if ($employee->age_justification_document && File::exists($destinationPath . '/' . $employee->age_justification_document)) {
+                    File::delete($destinationPath . '/' . $employee->age_justification_document);
+                }
+
                 $ageJustificationFileName = time() . "_" . uniqid() . '.' . $this->age_justification_document->getClientOriginalExtension();
                 $storeAgeJustification = File::move($this->age_justification_document->getRealPath(), $destinationPath . '/' . $ageJustificationFileName);
                 if (!$storeAgeJustification) {
@@ -244,6 +280,7 @@ class ListDraftEmployee extends Component
 
             $this->dispatch('swal', title: 'Sukses', text: 'Dokumen berhasil diunggah.', icon: 'success');
             $this->dispatch('uploadSucceed');
+            $this->resetPage();
         } catch (\Exception $e) {
             DB::rollBack();
             $this->dispatch('swal', title: 'Error', text: $e->getMessage(), icon: 'error');
@@ -326,7 +363,12 @@ class ListDraftEmployee extends Component
     }
 
     #[On('submitEmployee')]
-    public function submitEmployee($id){
+    public function submitEmployee($id)
+    {
+
+        $project_contractor = ProjectContractor::find($this->projectContractId);
+        // dd($project_contractor);
+
         DB::beginTransaction();
 
         try {
@@ -341,6 +383,7 @@ class ListDraftEmployee extends Component
                     'user_id' => Auth::id(),
                     'status' => 'on_review',
                     'reviewed_at' => now(),
+                    'expiry_date' => $project_contractor->end_date
                 ]
             );
 
@@ -363,6 +406,62 @@ class ListDraftEmployee extends Component
             Log::error('Error submitting employee: ' . $th->getMessage());
             $this->dispatch('swal', title: 'Error', text: 'Terjadi kesalahan saat mengajukan pekerja.', icon: 'error');
         }
+    }
+
+    public function deleteDraft($id)
+    {
+        $employee = ContractorWorker::find($id);
+
+        $this->dispatch('confirmDeleteModal', data: $employee);
+        return;
+    }
+
+    #[On('deleteEmployeeDraft')]
+    public function deleteEmployeeDraft($id){
+        $employee = ContractorWorker::find($id);
+
+        // check if has document on it and delete the document
+        if($employee->ktp_document){
+            if(File::hash('uploads/employee_documents/'.$employee->ktp_document)){
+                File::delete('uploads/employee_documents/'.$employee->ktp_document);
+                Log::info('Deleting Employee | Ktp document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            }else{
+                Log::info('Deleting Employee | No ktp document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            }
+        }
+
+        if($employee->photo){
+            if(File::hash('uploads/employee_documents/'.$employee->photo)){
+                File::delete('uploads/employee_documents/'.$employee->photo);
+                Log::info('Deleting Employee | Photo found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            }else{
+                Log::info('Deleting Employee | No photo found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            }
+        }
+
+        if($employee->form_b_document){
+            if(File::hash('uploads/employee_documents/'.$employee->form_b_document)){
+                File::delete('uploads/employee_documents/'.$employee->form_b_document);
+                Log::info('Deleting Employee | Form b document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            }else{
+                Log::info('Deleting Employee | No form b document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            }
+        }
+
+        // Delete Medical Review and Security Review if exist
+        if($employee->medical_review){
+            $employee->medical_review->delete();
+            Log::info('Deleting Employee | Medical review found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+        }
+
+        if($employee->security_review){
+            $employee->security_review->delete();
+            Log::info('Deleting Employee | Security review found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+        }
+
+        $employee->delete();
+        $this->dispatch('swal', title: 'Berhasil', text: 'Pekerja berhasil dihapus.', icon: 'success');
+        $this->resetPage();
     }
 
 

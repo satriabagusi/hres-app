@@ -15,6 +15,7 @@ class MedicalReview extends Model
         'status',
         'notes',
         'reviewed_at',
+        'expiry_date',
     ];
 
     public function worker()

@@ -2,16 +2,29 @@
 <html>
 
 <head>
-    <title>ID Card</title>
+    <title>ID Badge_{{ $employee->full_name . '(' . $employee->user->company_name . ')' }}_{{ \Carbon\Carbon::now() }}</title>
     <link href="{{ asset('css/tabler.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('libs/tabler-icons/tabler-icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
 
     <style>
+
+        html {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    
+        body, td, th, div, span, p {
+            font-family: 'Arial', sans-serif !important;
+        }
+        
         body {
+            font-family: 'Arial', sans-serif !important;
             color: #000;
-            font-size: 11px;
-            font-family: 'Arial', sans-serif
+            font-size: 18px !important;
+            /*font-family: 'Arial', sans-serif*/
+            margin-left: 0mm;
+            margin-right: 2mm;
         }
 
         .py-top {
@@ -50,13 +63,17 @@
             font-weight: bold;
             font-size: 16px;
             margin-bottom: -0.2rem;
+            text-transform: capitalize;
         }
 
         .expiry-box {
             color: white;
             border: 1px solid white;
-            padding-right: 20px;
+            padding-right: 22px;
             height: 4rem !important;
+            position: absolute;
+            right: -4mm;
+            width: 62mm;
         }
 
         .area-tangki {
@@ -79,8 +96,8 @@
 
         .img-box {
             margin-top: 3px;
-            width: 23.7mm;
-            height: 21.7mm;
+            width: 20mm;
+            height: 20mm;
         }
 
         .col-max {
@@ -99,15 +116,15 @@
         }
 
         .hazard-hr {
-            background-color: #fe000d
+            background-color: #FE000D
         }
 
         .hazard-mr {
-            background-color: #ffc000
+            background-color: #FFC000
         }
 
         .hazard-lr {
-            background-color: #a0c60e
+            background-color: #A0C60F
         }
 
         .back-id {
@@ -152,7 +169,7 @@
 
 <body>
     <div class="page">
-
+        {{-- {{ asset('img/static/bg-id-2.png') }} --}}
         <img src="{{ asset('img/static/bg-id-2.png') }}"
             style="position: absolute; z-index: -99; top: 0; left: -2px; height: 100%;">
 
@@ -172,7 +189,7 @@
         <div class="info">
             <div class="employee-number">{{ $employee->security_card_number }}</div>
             <div class="employee-name">{{ $employee->full_name }}</div>
-            <div class="employee-company">{{ $employee->user->company_name }}</div>
+            <div class="employee-company">{{ ucfirst($employee->user->company_name) }}</div>
             {{-- <div class="employee-company">{{ "PT Pratama Abadi Jaya" }}</div> --}}
         </div>
 
@@ -181,8 +198,8 @@
             <div class="col-auto photo-box">
                 <img class="img-box" src="{{ asset('uploads/employee_documents/' . $employee->photo) }}" alt="Photo">
             </div>
-            <div
-                class="col d-flex flex-column text-center justify-content-center expiry-box {{ $employee->security_review->area }}">
+            <!-- DONT FORGET TO ADD {{ $employee->security_review->area }}FOR AREA COLOR -->
+            <div class="col d-flex flex-column text-center justify-content-center expiry-box ">
                 <p class="mb-0" style="font-size:14px;">
 
                     @if($employee->security_review->area == 'area-all-area')
@@ -198,13 +215,13 @@
             </div>
         </div>
 
-        <div class="row justify-content-end" style="margin-top: -16px;margin-right: -1mm;">
-            <div class="col-5 fs-5 " style="color: white; font-size: 10px; margin-top: 2.6mm;margin-right: 5mm">
-                Violation&nbsp;
-                <strong class="fw-bold " style="font-size: 13px;letter-spacing: 2px">OOO</strong>
+        <div class="row justify-content-end" style="margin-top: -12px;margin-right: -2mm; margin-left: -8mm">
+            <div class="col-5 " style="color: white; font-size: 12px!important; margin-top: 2.6mm;margin-right: 5mm">
+                Violation&nbsp;&nbsp;
+                <strong class="fw-bold " style="font-size: 14px;letter-spacing: 2px">OOO</strong>
             </div>
 
-            <div class="col-2 float-end mt-1">
+            <div class="col-2 float-end" style="margin-top: 2mm">
                 <div class="hazard-box hazard-{{ collect(explode('_', $employee->medical_review->risk_notes))->map(fn($word) => Str::substr($word, 0, 1))->implode('') }}">
                     {{ collect(explode('_', $employee->medical_review->risk_notes))->map(fn($word) => Str::upper(Str::substr($word, 0, 1)))->implode('') }}
 
@@ -217,49 +234,51 @@
 
     </div>
 
+    @pageBreak
+
     <div class="page back-id">
         <table style="width:100%; border-collapse: collapse; font-size:9px; font-weight:bold;">
             <tr>
-                <td style="width: 28%; padding:0.5px; margin:2px; line-height:1;">No.SI</td>
-                <td style="width: 1%; padding:0.5px; margin:2px; line-height:1;">:</td>
-                <td style="padding:0.5px; margin:2px; line-height:1;">{{ $employee->security_card_number }}</td>
+                <td style="width: 25%; padding:0.5px; margin:2px; line-height:1.1;">No.SI</td>
+                <td style="width: 2%; padding:0.5px; margin:2px; line-height:1.1;">:</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">{{ $employee->security_card_number }}</td>
             </tr>
             <tr>
-                <td style="padding:0.5px; margin:2px; line-height:1;">Hubungan</td>
-                <td style="padding:0.5px; margin:2px; line-height:1;">:</td>
-                <td style="padding:0.5px; margin:2px; line-height:1;">Construction</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">Hubungan</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">:</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">Construction Balikpapan</td>
             </tr>
             <tr>
-                <td style="padding:0.5px; margin:2px; line-height:1;">Jabatan</td>
-                <td style="padding:0.5px; margin:2px; line-height:1;">:</td>
-                <td style="padding:0.5px; margin:2px; line-height:1;">{{ $employee->position }}</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">Jabatan</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">:</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">{{ $employee->position }}</td>
             </tr>
             <tr>
-                <td style="padding:0.5px; margin:2px; line-height:1;">Gol.Darah</td>
-                <td style="padding:0.5px; margin:2px; line-height:1;">:</td>
-                <td style="padding:0.5px; margin:2px; line-height:1;">-</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">Gol.Darah</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">:</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">-</td>
             </tr>
             <tr>
-                <td style="padding:0.5px; margin:2px; line-height:1; vertical-align: top;">Pekerjaan</td>
-                <td style="padding:0.5px; margin:2px; line-height:1; vertical-align: top;">:</td>
-                <td style="padding:0.5px; margin:2px; line-height:1; vertical-align: top;">
+                <td style="padding:0.5px; margin:2px; line-height:1.1; vertical-align: top;">Pekerjaan</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1; vertical-align: top;">:</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1; vertical-align: top;">
                     {{ $employee->project_contractor->project_name }}
                 </td>
             </tr>
         </table>
 
-        <div class="row justify-content-between" style="">
+        <div class="row justify-content-between " style="margin-top: 4mm">
             <div class="col-4 text-start">
-                <img src="{{ asset('img/static/mcu-induction-check.png') }}" width="90px" style="height: 50px"
+                <img src="{{ asset('img/static/mcu-induction-check.webp') }}" width="90px" style="height: 50px"
                     alt="">
-                <p style="position: absolute; margin-top: -26px; margin-left: 18px; font-size: 18px; font-family: Calibri;">
+                <p style="position: absolute; margin-top: -24px; margin-left: 18px; font-size: 18px;">
                     @if ($employee->medical_review->status == 'approved')
                         √
                     @else
                         -
                     @endif
                 </p>
-                <p style="position: absolute; margin-top: -26px; margin-left: 60px; font-size: 18px; font-family: Calibri;">
+                <p style="position: absolute; margin-top: -24px; margin-left: 60px; font-size: 18px; ">
                     @if ($employee->security_review->status == 'approved')
                         √
                     @else
@@ -268,18 +287,17 @@
                 </p>
             </div>
             <div class="col-5">
-                <div class="sign-section me-1" style="margin-top: 3.5mm">
-                    <div style="line-height: 1; font-weight: bold; font-size: 8px !important">Security PT Kilang
-                        Pertamina Balikpapan</div>
-                    <img src="{{ asset('img/static/ttd-jemingan.png') }}" alt="Sign"
-                        style="position: absolute;width: 60px;margin-top:-4px;z-index:-99;margin-left: -9.5px;height: 50px">
-                    <div class="fw-bold" style="position:absolute;z-index:2;font-size: 9.5px;margin-top: 50px;right: 23mm">Jemingan
+                <div class="sign-section me-1" style="margin-top: 3.3mm">
+                    <div style="line-height: 1; font-weight: bold; font-size: 8px !important">Section Head Security BLPP HSSE PT KPB</div>
+                    <img src="{{ asset('img/static/ttd-budi.png') }}" alt="Sign"
+                        style="position: absolute;width: auto;margin-top:-3px;z-index:-99;right: 4.5mm;height: 50px">
+                    <div class="fw-bold" style="position:absolute;z-index:2;font-size: 9.5px;bottom: 11.5mm;left: 53mm">Budi Darmansyah
                     </div>
                 </div>
             </div>
         </div>
 
-        <p style="position:absolute;z-index:2 ; font-size:8.5px;line-height:1;bottom: 0px;padding-right: 1px;">
+        <p style="position:absolute;z-index:2 ; font-size:8.5px;line-height:1.1;bottom: 0px;padding-right: 1px;left:5mm">
             <img src="{{ asset('img/static/logo-pertamina.png') }}" style="width: 73px" alt="">
             <br>
             Kartu ini milik PT KPB, jika menemukan kartu ini harap dikembalikan ke Security

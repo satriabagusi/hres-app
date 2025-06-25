@@ -71,7 +71,7 @@
                                         <td class="">{{ $item->position }}</td>
                                         <td class="sort-status">
                                             @if ($item->status == 'approved')
-                                                <span class="badge bg-lime text-lime-fg">Disetujui</span>
+                                                <span class="badge bg-lime text-lime-fg">ID Badge Tercetak</span>
                                             @elseif($item->status == 'draft')
                                                 <span class="badge bg-orange text-orange-fg">Draft</span>
                                             @elseif($item->status == 'submitted')
@@ -278,30 +278,7 @@
                 </div>
                 <div class="modal-body" wire:ignore>
                     <form wire:submit.prevent="uploadMCUFile">
-                        <div class="row">
-                            <div class="mb-3 col-6">
-                                <label for="mcu_document">Upload File MCU</label>
-                                <input type="file" id="filepond-upload-mcu" class="filepond"
-                                    accept="application/pdf" multiple="false" />
-                                @error('mcu_document')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-3 col-6">
-                                <label for="expiry_date" class="form-label">Tanggal Berakhir MCU</label>
-                                <div class="input-icon mb-2">
-                                    <input class="form-control" placeholder="Tanggal Berakhir MCU"
-                                        id="expiry_date_mcu" />
-                                    <span class="input-icon-addon">
-                                        <i class="ti ti-calendar"></i>
-                                    </span>
-                                </div>
-                                @error('expiry_date')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
 
-                        </div>
                         <div class="row">
                             <div class="mb-3 col-6">
                                 <div>
@@ -319,7 +296,6 @@
                                     <label class="form-label">Fit Status</label>
                                     <select class="form-select" id="select-fit-status">
                                         <option value="unfit" class="text-red">Unfit</option>
-                                        <option value="fit_with_note" class="text-teal">Fit with Note</option>
                                         <option value="follow_up" class="text-yellow">Follow Up</option>
                                         <option value="fit" class="text-green">Fit</option>
                                     </select>
@@ -329,12 +305,21 @@
                             </div>
                             <div class="mb-3 col-6">
                                 <label class="form-label">Catatan</label>
-                                <textarea class="form-control" rows="4" placeholder="Catatan" wire:model="notes" id="notes"></textarea>
+                                <textarea class="form-control" rows="6" placeholder="Catatan" wire:model="notes" id="notes"></textarea>
                                 @error('notes')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-
+                        </div>
+                        <div class="row">
+                            <div class="mb-3 col-6">
+                                <label for="mcu_document">Upload File MCU</label>
+                                <input type="file" id="filepond-upload-mcu" class="filepond"
+                                    accept="application/pdf" multiple="false" />
+                                @error('mcu_document')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
 
                         </div>
 
@@ -388,6 +373,11 @@
                             <td width="160px"> KTP </td>
                             <td width="10px"> : </td>
                             <td id="selected_employee_ktp_document"> </td>
+                        </tr>
+                        <tr>
+                            <td width="160px"> Form B </td>
+                            <td width="10px"> : </td>
+                            <td id="selected_employee_form_b_document"> </td>
                         </tr>
                         <tr>
                             <td width="160px"> Pas Foto </td>
@@ -560,30 +550,6 @@
                     document.getElementById('notes').addEventListener('change', (e) => {
                         @this.set('notes', e.target.value);
                     })
-
-                    const expiryDateMCU = document.getElementById('expiry_date_mcu');
-                    if (expiryDateMCU) {
-                        new Litepicker({
-                            element: expiryDateMCU,
-                            format: 'DD-MM-YYYY',
-                            buttonText: {
-                                previousMonth: '<i class="ti ti-chevron-left"></i>',
-                                nextMonth: '<i class="ti ti-chevron-right"></i>',
-                            },
-                            minDate: new Date(),
-                            mobileFriendly: true,
-                            singleMode: true,
-                            autoApply: true,
-                            setup(picker) {
-                                picker.on('selected', (date) => {
-                                    const formattedDate = date.format('YYYY-MM-DD');
-                                    console.log('Expiry date selected:',
-                                        formattedDate);
-                                    @this.set('expiry_date', formattedDate);
-                                })
-                            }
-                        });
-                    }
                 });
 
                 document.getElementById('modalDocumentMCU').addEventListener('hidden.bs.modal', () => {
@@ -714,12 +680,16 @@
                     classRisk = 'text-warning';
                 } else if (detailDataFromLivewire.medical_review.risk_notes == 'high_risk') {
                     classRisk = 'text-danger';
+                }else{
+                    classRisk = '';
                 }
 
                 document.getElementById('selected_employee_risk_notes').textContent = detailDataFromLivewire
                     .medical_review.risk_notes ||
                     '-';
-                document.getElementById('selected_employee_risk_notes').classList.add(classRisk);
+                if(classRisk != ''){
+                    document.getElementById('selected_employee_risk_notes').classList.add(classRisk);
+                }
 
                 // Tampilkan link ke dokumen KTP
                 const ktpDocEl = document.getElementById('selected_employee_ktp_document');
@@ -728,6 +698,12 @@
                         `<a href="/uploads/employee_documents/${detailDataFromLivewire.ktp_document}" target="_blank" onclick="window.open(this.href, 'new', 'popup'); return false;">Lihat KTP</a>`;
                 } else {
                     ktpDocEl.textContent = '-';
+                }
+
+                const formBDocEl = document.getElementById('selected_employee_form_b_document');
+                if(detailDataFromLivewire.form_b_document){
+                    formBDocEl.innerHTML =
+                    `<a href="/uploads/employee_documents/${detailDataFromLivewire.form_b_document}" target="_blank" onclick="window.open(this.href, 'new', 'popup'); return false;">Lihat Form B</a>`;
                 }
 
                 // Tampilkan Pas Foto
@@ -781,16 +757,59 @@
                                 <label>Nomor ID Security :</label>
                                 <input type="text" id="no_id_security" class="form-control mb-3" placeholder="Nomor ID Security" value="${e.data.security_card_number ? e.data.security_card_number : ''}">
                             </div>
-                    <small class="text-muted">Masukan Nomor ID Security Pekerja</small>`,
+                            <div class="text-start mb-2">
+                                <label>Pilih Area :</label>
+                                <select id="area_select" class="form-control">
+                                    <option value="" selected disabled readonly>Pilih Area</option>
+                                    <option value="area-all-area">ALL AREA KPB</option>
+                                    <option value="area-tangki" disabled readonly>AREA TANGKI</option>
+                                    <option value="area-isbl-osbl" disabled readonly>AREA ISBL/OSBL</option>
+                                </select>
+                            </div>
+                            <small class="text-muted">Masukan Nomor ID Security Pekerja dan Pilih Area</small>`,
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
                     confirmButtonText: 'Simpan',
                     cancelButtonText: 'Batal',
+                    didOpen: () => {
+                        // Inisialisasi TomSelect setelah SweetAlert2 terbuka
+                        const tom = new TomSelect('#area_select', {
+                            create: false,
+                            sortField: {
+                                field: "text",
+                                direction: "asc"
+                            },
+                            dropdownParent: document.querySelector(".swal2-popup")
+                        });
+
+                        setTimeout(() => {
+                            const dropdown = document.querySelector('.ts-dropdown');
+                            if(dropdown){
+                                dropdown.style.zIndex = '11000';
+                                dropdown.style.marginTop = '-30mm';
+                                dropdown.style.marginLeft = '5mm';
+                                dropdown.style.width = '125mm';
+                            }
+                        }, 10)
+                    },
                     preConfirm: () => {
-                        const inputValue = document.getElementById('no_id_security').value;
+                        const no_id_security = document.getElementById('no_id_security').value;
+                        const area = document.getElementById('area_select').value;
+
+                        if(!no_id_security){
+                            Swal.showValidationMessage('Nomor ID Security tidak boleh kosong');
+                            return false;
+                        }
+
+                        if(!area){
+                            Swal.showValidationMessage('Area harus dipilih');
+                            return false;
+                        }
+
                         return {
-                            no_id_security: inputValue
+                            no_id_security: no_id_security,
+                            area: area
                         };
                     }
                 }).then((result) => {
@@ -799,6 +818,7 @@
                         Livewire.dispatch('submitVerificationSecurity', {
                             id: e.data.id,
                             no_id_security: result.value.no_id_security,
+                            area: result.value.area
                         });
                     }
                 });
@@ -864,7 +884,7 @@
             })
 
             Livewire.on('printBadge', (e) => {
-                window.open(e.url, 'popup', 'width=800,height=600');
+                var pdfWindow = window.open(e.url, 'popup', 'width=800,height=600');
             })
 
         });

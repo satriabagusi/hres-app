@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->enum('risk_notes', ['low_risk', 'medium_risk', 'high_risk']);
             $table->string('mcu_document')->nullable();
-            $table->timestapm('expiry_date');
             $table->timestamp('reviewed_at');
             $table->timestamps();
         });

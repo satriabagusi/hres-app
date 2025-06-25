@@ -200,123 +200,135 @@
             </div>
         </div>
 
-        <div class="modal fade" id="modalDocument" tabindex="-1" wire:ignore.self>
-            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Modal title</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" wire:ignore>
-                        <form wire:submit.prevent="uploadDocument" class="space-y-4 mb-4">
-                            <div class="row">
+    </div>
+    <div class="modal fade" id="modalDocument" tabindex="-1" wire:ignore.self>
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal Upload Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" wire:ignore>
+                    <form wire:submit.prevent="uploadDocument" class="space-y-4 mb-4">
+                        <div class="row">
 
-                                <div class="col-4">
-                                    <label for="ktp_document">Upload File KTP</label>
-                                    <input type="file" id="filepond-upload-ktp" class="filepond"
-                                        accept="application/pdf" multiple="false" />
-                                    {{-- Show error if file is not valid --}}
-                                    @error('ktp_document')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="col-4">
-                                    <label for="photo_document">Upload File Pas Foto</label>
-                                    <input type="file" id="filepond-upload-pas-foto" class="filepond"
-                                        accept="image/png, image/jpeg, image/jpg" multiple="false" />
-                                    {{-- Show error if file is not valid --}}
-                                    @error('photo_document')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="col-4">
-                                    <label for="form_b_document">Upload File Form B</label>
-                                    <input type="file" id="filepond-upload-form-b" class="filepond"
-                                        accept="application/pdf" multiple="false" />
-                                    {{-- Show error if file is not valid --}}
-                                    @error('form_b_document')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="col-4" id="justifikasi-usia-element">
-                                    <label for="age_justification_document">Upload File Justifikasi Usia</label>
-                                    <input type="file" id="filepond-upload-justifikasi-usia" class="filepond"
-                                        accept="application/pdf" multiple="false" />
-                                    {{-- Show error if file is not valid --}}
-                                    @error('age_justification_document')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
-                                </div>
+                            <div class="col-4">
+                                <label for="ktp_document">Upload File KTP</label>
+                                <input type="file" id="filepond-upload-ktp" class="filepond"
+                                    accept="application/pdf" multiple="false" />
+                                {{-- Show error if file is not valid --}}
 
                             </div>
 
-                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
-                                <span wire:loading>
-                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                    Memproses File
-                                    ...
-                                </span>
-                                <span wire:loading.remove>
-                                    <i class="ti ti-upload"></i> Upload Data
-                                </span>
-                            </button>
-                        </form>
-                    </div>
-                    @if ($photoUrl || $ktpUrl || $formBUrl || $ageJustificationUrl)
-                        <div class="modal-body">
-                            <p class="text-danger small"> <b>*PERHATIAN*</b> Jika upload dokumen yang sudah ada, maka
-                                akan
-                                menggantikan dokumen sebelumnya</p>
-                            <h3>Dokumen yang sudah di upload :</h3>
-                            @if ($ktpUrl)
-                                <div class="mt-2">
-                                    <a href="{{ $ktpUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm"
-                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
-                                        <i class="ti ti-file"></i> Lihat Dokumen KTP
-                                    </a>
-                                </div>
-                            @endif
-                            @if ($photoUrl)
-                                <div class="mt-2">
-                                    <a href="{{ $photoUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm"
-                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
-                                        <i class="ti ti-file"></i> Lihat Dokumen Pas Foto
-                                    </a>
-                                </div>
-                            @endif
-                            @if ($formBUrl)
-                                <div class="mt-2">
-                                    <a href="{{ $formBUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm"
-                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
-                                        <i class="ti ti-file"></i> Lihat Dokumen Form B
-                                    </a>
-                                </div>
-                            @endif
-                            @if ($ageJustificationUrl)
-                                <div class="mt-2">
-                                    <a href="{{ $ageJustificationUrl }}" target="_blank"
-                                        class="btn btn-outline-primary btn-sm"
-                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
-                                        <i class="ti ti-file"></i> Lihat Dokumen Keterangan Umur
-                                    </a>
-                                </div>
-                            @endif
+                            <div class="col-4">
+                                <label for="photo_document">Upload File Pas Foto</label>
+                                <input type="file" id="filepond-upload-pas-foto" class="filepond"
+                                    accept="image/png, image/jpeg, image/jpg" multiple="false" />
+                                {{-- Show error if file is not valid --}}
+
+                            </div>
+
+                            <div class="col-4">
+                                <label for="form_b_document">Upload File Form B</label>
+                                <input type="file" id="filepond-upload-form-b" class="filepond"
+                                    accept="application/pdf" multiple="false" />
+                                {{-- Show error if file is not valid --}}
+
+                            </div>
+
+                            <div class="col-4" id="justifikasi-usia-element">
+                                <label for="age_justification_document">Upload File Justifikasi Usia</label>
+                                <input type="file" id="filepond-upload-justifikasi-usia" class="filepond"
+                                    accept="application/pdf" multiple="false" />
+                                {{-- Show error if file is not valid --}}
+
+                            </div>
+
                         </div>
-                    @endif
-                    <div class="modal-footer">
-                        <button type="button" class="btn me-auto" data-bs-dismiss="modal">Tutup</button>
+
+                        <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                            <span wire:loading>
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                Memproses File
+                                ...
+                            </span>
+                            <span wire:loading.remove>
+                                <i class="ti ti-upload"></i> Upload Data
+                            </span>
+                        </button>
+                    </form>
+                </div>
+                <div class="modal-body">
+                    @error('ktp_document')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                    @error('photo_document')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                    @error('form_b_document')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                    @error('age_justification_document')
+                        <span class="text-danger">{{ $message }}</span>
+                    @enderror
+                </div>
+                @if ($photoUrl || $ktpUrl || $formBUrl || $ageJustificationUrl)
+                    <div class="modal-body">
+                        <p class="text-danger small"> <b>*PERHATIAN*</b> Jika upload dokumen yang sudah ada, maka
+                            akan
+                            menggantikan dokumen sebelumnya</p>
+                        <h3>Dokumen yang sudah di upload :</h3>
+                        @if ($ktpUrl)
+                            <div class="mt-2">
+                                <a href="{{ $ktpUrl }}" target="_blank" class="btn btn-outline-primary btn-sm"
+                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                    <i class="ti ti-file"></i> Lihat Dokumen KTP
+                                </a>
+                            </div>
+                        @endif
+                        @if ($photoUrl)
+                            <div class="mt-2">
+                                <a href="{{ $photoUrl }}" target="_blank" class="btn btn-outline-primary btn-sm"
+                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                    <i class="ti ti-file"></i> Lihat Dokumen Pas Foto
+                                </a>
+                            </div>
+                        @endif
+                        @if ($formBUrl)
+                            <div class="mt-2">
+                                <a href="{{ $formBUrl }}" target="_blank" class="btn btn-outline-primary btn-sm"
+                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                    <i class="ti ti-file"></i> Lihat Dokumen Form B
+                                </a>
+                            </div>
+                        @endif
+                        @if ($ageJustificationUrl)
+                            <div class="mt-2">
+                                <a href="{{ $ageJustificationUrl }}" target="_blank"
+                                    class="btn btn-outline-primary btn-sm"
+                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                    <i class="ti ti-file"></i> Lihat Dokumen Keterangan Umur
+                                </a>
+                            </div>
+                        @endif
                     </div>
+                @endif
+                <div class="modal-footer">
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
-
+    </div>
+    <div id="cropperModal" class="modal-cropper">
+        <div class="modal-content-cropper">
+            <div class="cropper-container">
+                <img id="cropperImage" style="max-width:100%; max-height:100%;">
+            </div>
+            <div class="cropper-actions">
+                <button id="cropConfirm" class="btn btn-primary">Potong & Simpan</button>
+                <button id="cropCancel" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -336,6 +348,7 @@
                 FilePondPluginFileValidateSize,
                 FilePondPluginPdfPreview,
                 FilePondPluginImagePreview,
+                FilePondPluginImageEdit,
             );
 
             const inputElement = document.getElementById('filepond-upload');
@@ -490,37 +503,102 @@
                     }
 
                     if (!FilePond.find(inputPhotoElement)) {
+                        let cropper = null;
+                        let isCropping = false;
+                        if(cropper) cropper.destroy();
                         const pondPhoto = FilePond.create(inputPhotoElement, {
                             allowMultiple: false,
                             maxFiles: 1,
-                            acceptedFileTypes: ['image/png', 'image/jpeg', 'image/jpg', ],
+                            acceptedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
                             fileValidateTypeLabelExpectedTypes: 'Hanya file Gambar (PNG, JPEG) yang diperbolehkan',
                             maxFileSize: '2MB',
                             labelIdle: `<div class="text-center mb-2"> <i class="ti ti-upload fs-2 mb-3 text-muted"></i><br><strong>Drag & drop</strong> atau <span class="filepond--label-action">klik di sini</span> untuk upload Pas Foto</div>`,
                             credits: false,
-                            // storeAsFile: true,
                             allowReplace: true,
                             allowRemove: true,
                             allowRevert: false,
+                            allowImageEdit: true,
+                            imageEditIconEdit: '<p class="fw-bolder"><i class="ti ti-pencil"></i>Crop</p>',
+                            imageEditEditor: {
+                                open: (file) => {
+                                    return new Promise((resolve, reject) => {
+                                        const reader = new FileReader();
+                                        reader.onload = function(evt) {
+                                            const img = document
+                                                .getElementById(
+                                                    'cropperImage');
+                                            img.src = evt.target.result;
+
+                                            const modal = document
+                                                .getElementById(
+                                                    'cropperModal');
+                                            modal.style.display = 'flex';
+
+                                            if (cropper) cropper.destroy();
+
+                                            cropper = new Cropper(img, {
+                                                aspectRatio: 1,
+                                                viewMode: 1
+                                            });
+                                        };
+
+                                        if (file instanceof Blob ||
+                                            file instanceof File) {
+                                            reader.readAsDataURL(file);
+                                        } else {
+                                            console.error(
+                                                'File sent to editor is not a Blob/File:',
+                                                file);
+                                            reject();
+                                        }
+                                    });
+                                },
+                            }
                         });
 
                         pondPhoto.on('addfile', (error, file) => {
-                            if (!error) {
-                                inputPhotoElement.dispatchEvent(new Event(
-                                    'change', {
-                                        bubbles: true
-                                    }));
-                                const fileData = file.file;
-                                @this.upload('photo_document', fileData, (
-                                    fileName) => {
-                                    console.log(
-                                        'Pas Foto uploaded successfully:',
-                                        fileName);
+                            if (error) return;
+                            // Tidak ada lagi trigger modal cropper di sini!
+                            // Hanya proses upload
+                            @this.upload('photo_document', file.file, (fileName) => {
+                                console.log('Photo Uploaded successfully:', fileName);
+                                uploadedPhotoTmp = fileName;
+                            }, (error) => {
+                                console.error('Error Uploading Photo:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal Upload',
+                                    text: 'Terjadi error saat upload pas foto. coba lagi.',
+                                    confirmButtonText: 'OK'
+                                });
+                            });
+                        });
+
+                        // Tombol konfirmasi crop
+                        document.getElementById('cropConfirm').onclick = function () {
+                          if (!cropper) return;
+
+                            cropper.getCroppedCanvas({ width: 300, height: 300 }).toBlob(blob => {
+                                cropper.destroy();
+                                cropper = null;
+                                document.getElementById('cropperModal').style.display = 'none';
+
+                                const croppedFile = new File([blob], `cropped_${Date.now()}.png`, { type: 'image/png' });
+
+                                pondPhoto.removeFiles();
+                                pondPhoto.addFile(croppedFile);
+
+                                // Hapus file tmp lama
+                                if (uploadedPhotoTmp) {
+                                    @this.removeUpload('photo_document', uploadedPhotoTmp);
+                                    uploadedPhotoTmp = null;
+                                }
+
+                                @this.upload('photo_document', croppedFile, (fileName) => {
+                                    console.log('Pas Foto uploaded successfully:', fileName);
                                     uploadedPhotoTmp = fileName;
                                 }, (error) => {
-                                    console.error(
-                                        'Error uploading Pas Foto:',
-                                        error);
+                                    console.error('Error uploading Pas Foto:', error);
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Upload Gagal',
@@ -528,23 +606,33 @@
                                         confirmButtonText: 'OK'
                                     });
                                 });
-                            }
-                        });
 
-                        pondPhoto.on('removefile', (err, file) => {
-                            console.log('File removed');
+                            }, 'image/png');
+                        };
+
+                        // Tombol batal crop
+                        document.getElementById('cropCancel').onclick = function () {
+                            if (cropper) cropper.destroy();
+                            cropper = null;
+                            document.getElementById('cropperModal').style.display = 'none';
+
+                            // Optionally: remove file if cancel crop means cancel upload
+                            cropper = null;
+                            isCropping = false;
+                        };
+
+                        pondPhoto.on('removefile', () => {
                             inputPhotoElement.value = '';
-                            inputPhotoElement.dispatchEvent(new Event(
-                                'change', {
-                                    bubbles: true
-                                }));
+                            inputPhotoElement.dispatchEvent(new Event('change', { bubbles: true }));
 
                             if (uploadedPhotoTmp) {
-                                @this.removeUpload('photo_document',
-                                    uploadedPhotoTmp);
+                                @this.removeUpload('photo_document', uploadedPhotoTmp);
                                 uploadedPhotoTmp = null;
                             }
                         });
+
+
+
                     }
 
                     if (!FilePond.find(inputFormBElement)) {
@@ -730,6 +818,26 @@
                     })
                 });
             });
+
+            Livewire.on('confirmDeleteModal', (e) => {
+                console.log(e);
+                Swal.fire({
+                    title: 'Hapus data Pekerja? ',
+                    html: `<span class=" text-muted">Hapus data dan dokumen <b>${e.data.full_name}</b> ini ?</span> <p class="text-muted"><small class="text-muted">Pekerja yang sudah upload beberapa dokumen akan dihapus dan tidak dapat dikembalikan.</small></p>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#388cda',
+                    cancelButtonColor: '#dc3545',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Livewire.dispatch('deleteEmployeeDraft', {
+                            id: e.data.id
+                        });
+                    }
+                })
+            })
 
         });
     </script>

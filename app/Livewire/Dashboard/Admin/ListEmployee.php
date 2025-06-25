@@ -25,13 +25,14 @@ class ListEmployee extends Component
     use WithFileUploads, WithPagination;
     protected $paginationTheme = 'bootstrap';
 
+    public ?string $search = null;
+
     public $mcu_document = null;
     public $hazard_status = null;
     public $notes = null;
     public $selected_employee;
     public $selected_employee_id;
     public $fit_status = null;
-    public $expiry_date;
 
     public $no_badge_induction;
     public $no_badge_security;
@@ -49,7 +50,7 @@ class ListEmployee extends Component
         $this->validate([
             'mcu_document' => 'file|mimes:pdf|max:2048',
             'hazard_status' =>  ['required', Rule::in(['low_risk', 'medium_risk', 'high_risk'])],
-            'fit_status' => ['required', Rule::in(['fit', 'unfit', 'fit_with_note', 'follow_up'])],
+            'fit_status' => ['required', Rule::in(['fit', 'unfit', 'follow_up'])],
             'notes' => [
                 'nullable',
                 'string',
@@ -57,7 +58,6 @@ class ListEmployee extends Component
                     return in_array($this->fit_status, ['unfit', 'follow_up']);
                 })
             ],
-            'expiry_date' => 'required|date|after:today',
         ], [
             'mcu_document.mimes' => 'File harus berformat PDF',
             'mcu_document.max' => 'Ukuran file terlalu besar. Maksimal 2MB.',
@@ -68,8 +68,6 @@ class ListEmployee extends Component
             'fit_status.in' => 'Status fit tidak valid.',
             'notes.string' => 'Catatan harus berupa teks.',
             'notes.required_if' => 'Catatan tidak boleh kosong.',
-            'expiry_date.required' => 'Tanggal Berlaku MCU tidak boleh kosong.',
-            'expiry_date.after' => 'Tanggal Berlaku MCU harus setelah hari ini.',
         ]);
 
         DB::beginTransaction();
@@ -102,8 +100,13 @@ class ListEmployee extends Component
                 $medical_review_employee->risk_notes = $this->hazard_status;
                 $medical_review_employee->status_mcu = $this->fit_status;
                 $medical_review_employee->notes = $this->notes;
-                $medical_review_employee->expiry_date = $this->expiry_date;
-                $medical_review_employee->status = 'approved';
+
+                if($this->status_mcu == 'unfit' || $this->status_mcu == 'follow_up'){
+                    $medical_review_employee->status = 'rejected';
+                }else{
+                    $medical_review_employee->status = 'approved';
+                }
+
             }
 
             $medical_review_employee->save();
@@ -203,9 +206,8 @@ class ListEmployee extends Component
     }
 
     #[On('submitVerificationSecurity')]
-    public function submitVerificationSecurity($id, $no_id_security)
+    public function submitVerificationSecurity($id, $no_id_security, $area)
     {
-
         // dd($id, $no_id_security);
 
         // find no_id_security can't be redundant
@@ -216,9 +218,14 @@ class ListEmployee extends Component
             return;
         }
 
-        // check if no_id_security is empty, space inputted or null | remove space first
         if (trim($no_id_security) == '' || $no_id_security == null) {
             $this->dispatch('swal', title: 'Error', text: 'Nomor ID Security tidak boleh kosong.', icon: 'error');
+            return;
+        }
+
+        if (trim($area) == '' || $area == null) {
+            $this->dispatch('swal', title: 'Error', text: 'Area harus dipilih.', icon: 'error');
+            return;
         }
 
         DB::beginTransaction();
@@ -231,6 +238,7 @@ class ListEmployee extends Component
                     'status' => 'approved',
                     'reviewed_by' => Auth::user()->id,
                     'notes' => 'ok',
+                    'area' => $area,
                 ]);
 
             $employee->save();
@@ -342,7 +350,7 @@ class ListEmployee extends Component
         }
 
         // Generate URL untuk print (area tidak dipakai di sini karena PDF ambil dari route)
-        $url = route('print-view.employee-id-badge', ['id' => $id]);
+        $url = route('print-view.employee-id-badge', ['id' => base64_encode($id)]);
 
         // dd($url);
 

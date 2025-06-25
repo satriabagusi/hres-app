@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\Snappy\Facades\SnappyPdf as SnappyPDF;
 use function Spatie\LaravelPdf\Support\pdf;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\Browsershot\Browsershot;
 
 Route::group(['middleware' => 'guest'], function () {
     Route::get('/login', Login::class)->name('login');
@@ -52,13 +54,27 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('/print-view/employee-id-badge/{id}', function ($id) {
-        $employee = ContractorWorker::with(['medical_review', 'security_review', 'user', 'project_contractor'])->findOrFail($id);
+
+        $idDecode = base64_decode($id);
+
+        $employee = ContractorWorker::with(['medical_review', 'security_review', 'user', 'project_contractor'])->findOrFail($idDecode);
 
         if($employee->medical_review->status != 'approved' || $employee->security_review->status != 'approved'){
             return abort(403, 'Data pekerja belum diverifikasi');
         }
 
-        return pdf()->view('layouts.layout-id-badge', compact('employee'))->paperSize(85.6, 54)->name('ID-Badge-' . $employee->full_name . '-' . time() . '.pdf');
+        return Pdf::view('layouts.layout-id-badge', compact('employee'))
+                ->withBrowsershot(function (Browsershot $browsershot) {
+                    $browsershot
+                        ->noSandbox()
+                        // ->setChromePath('/www/.puppeteer-cache-spatie-laravel-pdf/chrome/linux-137.0.7151.119/chrome-linux64/chrome')
+                        ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox']);
+                        // ->setNodeBinary('/usr/bin/node')
+                        // ->setNpmBinary('/usr/bin/npm');
+                })
+                ->paperSize(85.6, 54)
+                ->name('ID-Badge-' . $employee->full_name . '-' . time() . '.pdf');
+                // ->save(storage_path('app/public/ID-Badge-' . $employee->full_name . '-' . time() . '.pdf'));
 
     })->name('print-view.employee-id-badge');
 });

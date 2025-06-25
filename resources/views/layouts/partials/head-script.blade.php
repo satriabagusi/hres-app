@@ -20,6 +20,11 @@
     href="{{ asset('libs/filepond-plugin-pdf-preview/dist/filepond-plugin-pdf-preview.min.css') }}" />
 <link rel="stylesheet"
     href="{{ asset('libs/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css') }}" />
+<link rel="stylesheet"
+    href="{{ asset('libs/filepond-plugin-image-edit/dist/filepond-plugin-image-edit.min.css') }}" />
+
+<link rel="stylesheet" href="{{ asset('libs/cropperjs/dist/cropper.min.css') }}" />
+
 
 
 
@@ -98,7 +103,7 @@
 
     .swal2-popup .swal2-show .swal2-modal {
         width: 468px !important,
-        overflow: visible !important;
+            overflow: visible !important;
     }
 
     .table-responsive .dropdown,
@@ -160,6 +165,44 @@
 
     .filepond--credits {
         display: none !important;
+    }
+</style>
+
+<style>
+    .modal-cropper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9000;
+    }
+
+    .modal-content-cropper {
+        background: #fff;
+        padding: 1rem;
+        border-radius: 8px;
+        max-width: 90%;
+        max-height: 90%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .cropper-container {
+        flex: 1;
+        overflow: auto;
+        text-align: center;
+    }
+
+    .cropper-actions {
+        display: flex;
+        justify-content: end;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
     }
 </style>
 
