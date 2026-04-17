@@ -19,19 +19,30 @@
                                         autocomplete="off" placeholder="Cari ... " wire:model.live='search' />
                                 </div>
                                 <div class="dropdown">
-                                    <a class="btn dropdown-toggle" data-bs-toggle="dropdown">
-                                        <span id="page-count" class="me-1">{{ $totalPaginate }}</span>
-                                        <span>records</span>
+                                    <a class="btn btn-outline-azure dropdown-toggle d-flex align-items-center"
+                                        data-bs-toggle="dropdown" wire:loading.delay wire:loading.attr="disabled"
+                                        wire:target="totalPaginate, page">
+                                        <!-- Spinner dalam button saat loading -->
+                                        <div wire:loading.delay wire:target="totalPaginate"
+                                            class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <span id="page-count" class="me-1">Tampilkan {{ $totalPaginate }}</span>
+                                        <span>data</span>
                                     </a>
                                     <div class="dropdown-menu">
-                                        <button class="dropdown-item" wire:click='$set("totalPaginate", 10)'>10
-                                            records</button>
-                                        <button class="dropdown-item" wire:click='$set("totalPaginate", 20)'>20
-                                            records</button>
-                                        <button class="dropdown-item" wire:click='$set("totalPaginate", 50)'>50
-                                            records</button>
-                                        <button class="dropdown-item" wire:click='$set("totalPaginate", 100)'>100
-                                            records</button>
+                                        <button type="button" class="dropdown-item"
+                                            wire:click="$set('totalPaginate', 10)">10
+                                            data</button>
+                                        <button type="button" class="dropdown-item"
+                                            wire:click="$set('totalPaginate', 20)">20
+                                            data</button>
+                                        <button type="button" class="dropdown-item"
+                                            wire:click="$set('totalPaginate', 50)">50
+                                            data</button>
+                                        <button type="button" class="dropdown-item"
+                                            wire:click="$set('totalPaginate', 100)">100
+                                            data</button>
                                     </div>
                                 </div>
                             </div>
@@ -40,6 +51,15 @@
                 </div>
                 <div id="advanced-table">
                     <div class="table-responsive">
+                        <div class="position-relative">
+                            <div wire:loading.delay
+                                wire:target="totalPaginate, search, page, approveDocument, rejectDocument"
+                                class="position-absolute w-100 h-100 bg-white bg-opacity-75 table-loading-overlay"
+                                style="top: 0; left: 0; z-index: 10;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
                         <table class="table table-vcenter table-selectable">
                             <thead>
                                 <tr>
@@ -76,7 +96,12 @@
                                                 @elseif($item->status == 'rejected')
                                                     <span class="badge bg-red text-red-fg">Rejected</span>
                                                 @endif
-                                            @elseif($item->role === 'hse' || $item->role === 'administrator' || $item->role === 'manager' || $item->role === 'security' || $item->role === 'medical')
+                                            @elseif(
+                                                $item->role === 'hse' ||
+                                                    $item->role === 'administrator' ||
+                                                    $item->role === 'manager' ||
+                                                    $item->role === 'security' ||
+                                                    $item->role === 'medical')
                                                 @if ($item->deleted_at == null)
                                                     <span class="badge bg-lime text-lime-fg">Aktif</span>
                                                 @else
@@ -88,6 +113,10 @@
                                             {{ $item->company_name }}
                                         </td>
                                         <td class="sort-category py-0">
+                                            @if ($item->role === 'contractor' && $item->status === 'rejected')
+                                                <button class="btn btn-sm btn-outline-teal unreject-acc-btn"
+                                                    data-id="{{ $item->id }}" type="button">Un-Rejected</button>
+                                            @endif
                                             @if ($item->deleted_at == null)
                                                 <button class="btn btn-sm btn-outline-red deactivate-acc-btn"
                                                     data-id="{{ $item->id }}" type="button">NonAktif</button>
@@ -104,6 +133,7 @@
 
                             </tbody>
                         </table>
+                        </div>
                     </div>
                     <div class="card-footer d-flex align-items-center">
                         <div>
@@ -114,7 +144,7 @@
                         </div>
 
                         <div class="pagination m-0 ms-auto">
-                            {{-- {{ $companies->links() }} --}}
+                            {{ $users->links() }}
                         </div>
                     </div>
                 </div>
@@ -263,82 +293,105 @@
             Livewire.on('success', (e) => {
                 modalAddAccount.hide();
             })
+            document.addEventListener('click', (e) => {
+                    const deactivateBtn = e.target.closest('.deactivate-acc-btn');
+                    if (deactivateBtn) {
+                        const idBtn = Number(deactivateBtn.getAttribute('data-id'));
 
+                        Swal.fire({
+                            title: "Apakah anda yakin?",
+                            html: "Akun ini tidak akan bisa login jika di non-aktifkan",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, non-aktifkan!',
+                            cancelButtonText: 'Batal',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Livewire.dispatch('deactivateAccount', {
+                                    id: idBtn
+                                });
+                            }
+                        });
+                        return;
+                    }
 
-            document.querySelectorAll('.deactivate-acc-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idBtn = e.currentTarget.getAttribute('data-id');
+                    const activateBtn = e.target.closest('.activate-acc-btn');
+                    if (activateBtn) {
+                        const idBtn = Number(activateBtn.getAttribute('data-id'));
 
-                    Swal.fire({
-                        title: "Apakah anda yakin?",
-                        html: "Akun ini tidak akan bisa login jika di non-aktifkan",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ya, non-aktifkan!',
-                        cancelButtonText: 'Batal',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            Livewire.dispatch('deactivateAccount', {
-                                id: idBtn
-                            });
-                        }
-                    });
-                });
-            });
+                        Swal.fire({
+                            title: "Apakah anda yakin?",
+                            html: "Akun ini bisa digunakan login jika di aktifkan kembali",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, aktifkan!',
+                            cancelButtonText: 'Batal',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Livewire.dispatch('activateAccount', {
+                                    id: idBtn
+                                });
+                            }
+                        });
+                        return;
+                    }
 
-            document.querySelectorAll('.activate-acc-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idBtn = e.currentTarget.getAttribute('data-id');
+                    const unrejectBtn = e.target.closest('.unreject-acc-btn');
+                    if (unrejectBtn) {
+                        const idBtn = Number(unrejectBtn.getAttribute('data-id'));
 
+                        Swal.fire({
+                            title: "Apakah anda yakin?",
+                            html: "Status akun contractor ini akan diubah dari rejected ke pending",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#0ca678',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, un-rejected!',
+                            cancelButtonText: 'Batal',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Livewire.dispatch('unRejectAccount', {
+                                    id: idBtn
+                                });
+                            }
+                        });
+                        return;
+                    }
 
-                    Swal.fire({
-                        title: "Apakah anda yakin?",
-                        html: "Akun ini bisa digunakan login jika di aktifkan kembali",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ya, aktifkan!',
-                        cancelButtonText: 'Batal',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            Livewire.dispatch('activateAccount', {
-                                id: idBtn
-                            });
-                        }
-                    });
-                });
-            });
+                    const resetBtn = e.target.closest('.reset-pass-btn');
+                    if (resetBtn) {
+                        const idBtn = Number(resetBtn.getAttribute('data-id'));
 
-            document.querySelectorAll('.reset-pass-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const idBtn = e.currentTarget.getAttribute('data-id');
-
-                    Swal.fire({
-                        title: "Apakah anda yakin?",
-                        html: "Password akun ini akan di reset",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ya, reset password!',
-                        cancelButtonText: 'Batal',
-                        allowOutsideClick: false,
-                        allowEscapeKey: false
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            Livewire.dispatch('resetPassword', {
-                                id: idBtn
-                            });
-                        }
-                    })
-                })
+                        Swal.fire({
+                            title: "Apakah anda yakin?",
+                            html: "Password akun ini akan di reset",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ya, reset password!',
+                            cancelButtonText: 'Batal',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Livewire.dispatch('resetPassword', {
+                                    id: idBtn
+                                });
+                            }
+                        });
+                    }
             });
 
             Livewire.on('password-changed', (e) => {

@@ -69,6 +69,26 @@
         });
     });
 
+    const cleanupStaleModalLayer = () => {
+        const hasVisibleModal = !!document.querySelector('.modal.show');
+
+        if (!hasVisibleModal) {
+            document.querySelectorAll('.modal-backdrop').forEach((el) => el.remove());
+            document.body.classList.remove('modal-open');
+            document.body.style.removeProperty('overflow');
+            document.body.style.removeProperty('padding-right');
+        }
+
+        const cropperModal = document.getElementById('cropperModal');
+        if (!hasVisibleModal && cropperModal) {
+            cropperModal.style.display = 'none';
+        }
+    };
+
+    document.addEventListener('hidden.bs.modal', () => {
+        setTimeout(cleanupStaleModalLayer, 0);
+    });
+
     @if (session('success'))
         console.log('success');
         Swal.fire({

@@ -39,48 +39,48 @@ class Home extends Component
         // Hitung draft: status draft ATAU dokumen wajib belum lengkap
         $total_worker_draft = (clone $baseQuery)
             ->where(function ($q) {
-                $q->where('status', 'draft')
-                    ->orWhereNull('photo')
-                    ->orWhereNull('ktp_document')
-                    ->orWhereNull('form_b_document');
+                $q->where('workers.status', 'draft')
+                    ->orWhereNull('workers.photo')
+                    ->orWhereNull('workers.ktp_document')
+                    ->orWhereNull('workers.form_b_document');
             })
             ->count();
 
         // Hitung submitted
         $total_worker_submitted = (clone $baseQuery)
-            ->where('status', 'submitted')
+            ->where('workers.status', 'submitted')
             ->count();
 
         // Hitung medical approved / on review
         $total_medical_fit_to_work = (clone $baseQuery)
-            ->whereHas('medical_review', fn($q) => $q->where('status_mcu', 'fit'))
+            ->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status_mcu', 'fit'))
             ->count();
 
         $total_medical_on_review = (clone $baseQuery)
-            ->whereHas('medical_review', fn($q) => $q->where('status', 'on_review'))
+            ->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status', 'on_review'))
             ->count();
 
         $total_medical_follow_up = (clone $baseQuery)
-            ->whereHas('medical_review', fn($q) => $q->where('status_mcu', 'follow_up'))
+            ->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status_mcu', 'follow_up'))
             ->count();
 
         $total_medical_unfit = (clone $baseQuery)
-            ->whereHas('medical_review', fn($q) => $q->where('status_mcu', 'unfit'))
+            ->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status_mcu', 'unfit'))
             ->count();
 
         // Hitung security approved / on review
         $total_id_badge_printed = (clone $baseQuery)
-            ->where('status', 'approved')
+            ->where('workers.status', 'approved')
             ->count();
 
         $total_before_induction = (clone $baseQuery)
-            ->where('status', 'submitted')
-            ->where('induction_card_number', '=',  null)
+            ->where('workers.status', 'submitted')
+            ->where('workers.induction_card_number', '=',  null)
             ->count();
 
         $total_after_induction = (clone $baseQuery)
-            ->where('status', 'submitted')
-            ->whereNotNull('induction_card_number')
+            ->where('workers.status', 'submitted')
+            ->whereNotNull('workers.induction_card_number')
             ->count();
 
         $list_company_chart = User::where('role', 'contractor')
@@ -88,33 +88,33 @@ class Home extends Component
             ->withCount([
                 // Semua pekerja fit
                 'workers as fit_to_work' => function ($q) {
-                    $q->whereHas('medical_review', fn($q) => $q->where('status_mcu', 'fit'));
+                    $q->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status_mcu', 'fit'));
                 },
 
                 // Medical on review
                 'workers as medical_on_review' => function ($q) {
-                    $q->whereHas('medical_review', fn($q) => $q->where('status', 'on_review'));
+                    $q->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status', 'on_review'));
                 },
 
                 // Medical follow up
                 'workers as medical_follow_up' => function ($q) {
-                    $q->whereHas('medical_review', fn($q) => $q->where('status_mcu', 'follow_up'));
+                    $q->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status_mcu', 'follow_up'));
                 },
 
                 // Medical unfit
                 'workers as medical_unfit' => function ($q) {
-                    $q->whereHas('medical_review', fn($q) => $q->where('status_mcu', 'unfit'));
+                    $q->whereHas('medical_review', fn($q) => $q->where('medical_reviews.status_mcu', 'unfit'));
                 },
 
                 // ID card printed (status approved)
                 'workers as id_card_printed' => function ($q) {
-                    $q->where('status', 'approved');
+                    $q->where('workers.status', 'approved');
                 },
 
                 // Belum induction
                 'workers as belum_induction' => function ($q) {
-                    $q->where('status', 'submitted')
-                        ->whereNull('induction_card_number');
+                    $q->where('workers.status', 'submitted')
+                        ->whereNull('workers.induction_card_number');
                 },
             ])
             ->get();
@@ -124,10 +124,10 @@ class Home extends Component
         });
 
         // Hitung jumlah berdasarkan status
-        $total_draft = (clone $workerQuery)->where('status', 'draft')->count();
-        $total_submitted = (clone $workerQuery)->where('status', 'submitted')->count();
-        $total_approved = (clone $workerQuery)->where('status', 'approved')->count();
-        $total_rejected = (clone $workerQuery)->where('status', 'rejected')->count(); // jika ada
+        $total_draft = (clone $workerQuery)->where('workers.status', 'draft')->count();
+        $total_submitted = (clone $workerQuery)->where('workers.status', 'submitted')->count();
+        $total_approved = (clone $workerQuery)->where('workers.status', 'approved')->count();
+        $total_rejected = (clone $workerQuery)->where('workers.status', 'rejected')->count(); // jika ada
         $total_status = [
             $total_draft,
             $total_submitted,

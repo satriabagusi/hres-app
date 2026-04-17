@@ -1,7 +1,7 @@
 <div class="container-xl">
     <div class="row row-deck row-cards">
 
-        <div class=@if (Auth::user()->role === 'administrator') col-6 @else col-12 col-lg-6 @endif>
+        <div class=@if (Auth::user()->role === 'administrator' || Auth::user()->role === 'manager') col-6 @else col-12 col-lg-6 @endif>
             <div class="card">
                 <div class="card-body">
                     <div class="row gy-3">
@@ -186,9 +186,9 @@
                 <script>
                     document.addEventListener('livewire:init', function() {
 
-                        const series = [{{ $total_medical_fit_to_work }}, {{ $total_medical_on_review }}, {{ $total_medical_follow_up }}, {{ $total_medical_unfit }}, {{ $total_before_induction }}, {{ $total_id_badge_printed }}];
+                        const series = [{{ $total_medical_fit_to_work }}, {{ $total_medical_on_review }}, {{ $total_medical_follow_up }}, {{ $total_medical_unfit }}, {{ $total_before_induction }}, {{ $total_id_badge_printed }}, {{ $total_worker_submitted }}];
 
-                        const labels = ["Fit to Work", "Medical On Review", "Medical Follow Up", "Medical Unfit", "Belum Induction", "ID Card Tercetak", ];
+                        const labels = ["Fit to Work", "Medical On Review", "Medical Follow Up", "Medical Unfit", "Belum Induction", "ID Card Tercetak", "Total Di Ajukan" ];
 
                         new ApexCharts(document.querySelector("#chart-worker-status-pie"), {
                             chart: {
@@ -202,12 +202,13 @@
                             series: series,
                             labels: labels,
                             colors: [
-                                "#1cc88a",
-                                "#f76707",
+                                "#0ca678",
+                                "#f59f00",
                                 "#f59f00",
                                 "#d6336c",
                                 "#ae3ec9",
-                                "#4299e1"
+                                "#4299e1",
+                                "#17a2b8"
                             ],
                             tooltip: {
                                 fillSeriesColor: false,

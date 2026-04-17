@@ -17,6 +17,7 @@ class ContractorWorker extends Model
         'position',
         'photo',
         'ktp_document',
+        'skck_document',
         'induction_card_number',
         'security_card_number',
         'form_b_document',

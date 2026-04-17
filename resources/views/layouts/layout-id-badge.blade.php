@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>ID Badge_{{ $employee->full_name . '(' . $employee->user->company_name . ')' }}_{{ \Carbon\Carbon::now() }}</title>
+    <title>ID Badge_{{ Str::title($employee->full_name) . '(' . $employee->user->company_name . ')' }}_{{ \Carbon\Carbon::now() }}</title>
     <link href="{{ asset('css/tabler.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('libs/tabler-icons/tabler-icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
@@ -13,11 +13,11 @@
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
-    
+
         body, td, th, div, span, p {
             font-family: 'Arial', sans-serif !important;
         }
-        
+
         body {
             font-family: 'Arial', sans-serif !important;
             color: #000;
@@ -48,20 +48,20 @@
             color: white;
             font-weight: bold;
             font-size: 12px;
-            margin-bottom: -0.4rem;
+            margin-bottom: -0.5mm;
         }
 
         .employee-name {
             color: white;
             font-weight: bold;
-            font-size: 20px;
-            margin-bottom: 0.05rem;
+            font-size: 18px;
+            margin-bottom: 0.5mm;
         }
 
         .employee-company {
             color: white;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             margin-bottom: -0.2rem;
             text-transform: capitalize;
         }
@@ -76,15 +76,15 @@
             width: 62mm;
         }
 
-        .area-tangki {
+        .area-brown {
             background-color: #9d562c;
         }
 
-        .area-all-area {
+        .area-red {
             background-color: #dc0612;
         }
 
-        .area-isbl-osbl {
+        .area-green {
             background-color: #a0c60f;
         }
 
@@ -188,7 +188,7 @@
 
         <div class="info">
             <div class="employee-number">{{ $employee->security_card_number }}</div>
-            <div class="employee-name">{{ $employee->full_name }}</div>
+            <div class="employee-name">{{ $employee->short_name }}</div>
             <div class="employee-company">{{ ucfirst($employee->user->company_name) }}</div>
             {{-- <div class="employee-company">{{ "PT Pratama Abadi Jaya" }}</div> --}}
         </div>
@@ -199,23 +199,15 @@
                 <img class="img-box" src="{{ asset('uploads/employee_documents/' . $employee->photo) }}" alt="Photo">
             </div>
             <!-- DONT FORGET TO ADD {{ $employee->security_review->area }}FOR AREA COLOR -->
-            <div class="col d-flex flex-column text-center justify-content-center expiry-box ">
+            <div class="col d-flex flex-column text-center justify-content-center expiry-box area-{{ $employee->security_review->area_color }}">
                 <p class="mb-0" style="font-size:14px;">
-
-                    @if($employee->security_review->area == 'area-all-area')
-                        ALL AREA KPB
-                    @elseif($employee->security_review->area == 'area-isbl-osbl')
-                        AREA ISBL/OSBL
-                    @elseif($employee->security_review->area == 'area-tangki')
-                        AREA TANGKI
-                    @endif
-
+                    {{$employee->security_review->area}}
                 </p>
-                <p class=" fs-2 fw-bold mt-1" style="margin-bottom: -1mm;">{{ \Carbon\Carbon::parse($employee->security_review->expiry_date)->format('d/m/Y') }}</p>
+                <p class=" fs-2 fw-bold mt-1" style="margin-bottom: -1mm;">{{ \Carbon\Carbon::parse($employee->project_contractor->end_date)->format('d/m/Y') }}</p>
             </div>
         </div>
 
-        <div class="row justify-content-end" style="margin-top: -12px;margin-right: -2mm; margin-left: -8mm">
+        <div class="row justify-content-end" style="margin-top: 5px;margin-right: -2mm; margin-left: -8mm">
             <div class="col-5 " style="color: white; font-size: 12px!important; margin-top: 2.6mm;margin-right: 5mm">
                 Violation&nbsp;&nbsp;
                 <strong class="fw-bold " style="font-size: 14px;letter-spacing: 2px">OOO</strong>
@@ -241,7 +233,7 @@
             <tr>
                 <td style="width: 25%; padding:0.5px; margin:2px; line-height:1.1;">No.SI</td>
                 <td style="width: 2%; padding:0.5px; margin:2px; line-height:1.1;">:</td>
-                <td style="padding:0.5px; margin:2px; line-height:1.1;">{{ $employee->security_card_number }}</td>
+                <td style="padding:0.5px; margin:2px; line-height:1.1;">{{ $employee->induction_card_number }}</td>
             </tr>
             <tr>
                 <td style="padding:0.5px; margin:2px; line-height:1.1;">Hubungan</td>

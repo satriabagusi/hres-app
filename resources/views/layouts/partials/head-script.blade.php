@@ -25,12 +25,6 @@
 
 <link rel="stylesheet" href="{{ asset('libs/cropperjs/dist/cropper.min.css') }}" />
 
-
-
-
-
-
-
 <link rel="stylesheet" href="{{ asset('libs/litepicker/dist/css/litepicker.css') }}" />
 
 
@@ -112,6 +106,25 @@
         position: static;
     }
 
+    .table-loading-overlay {
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .ts-dropdown,
+    .ts-dropdown.single,
+    .ts-dropdown.multi,
+    .tomselect .ts-dropdown {
+        z-index: 2065 !important;
+    }
+
+    .modal .ts-dropdown,
+    .swal2-container .ts-dropdown {
+        z-index: 2065 !important;
+    }
+
 
     /* .swal-modal-tomselect {
         height: 360px !important;
@@ -179,7 +192,7 @@
         display: none;
         justify-content: center;
         align-items: center;
-        z-index: 9000;
+        z-index: 1056;
     }
 
     .modal-content-cropper {

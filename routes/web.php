@@ -5,6 +5,7 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\Dashboard\Admin\ListCompany;
 use App\Livewire\Dashboard\Admin\ListEmployee as AdminListEmployee;
+use App\Livewire\Dashboard\Admin\WorkerBlacklistPage as AdminWorkerBlacklistPage;
 use App\Livewire\Dashboard\Admin\UserAccount\ListAccount;
 use App\Livewire\Dashboard\Contractor\ListDraftEmployee;
 use App\Livewire\Dashboard\Contractor\ListEmployee;
@@ -39,6 +40,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/list-company', ListCompany::class)->name('admin.list-company');
     Route::get('/list-employee', AdminListEmployee::class)->name('admin.list-employee');
+    Route::get('/list-project', ListProjectContract::class)->name('admin.list-project');
+    Route::get('/worker-blacklist', AdminWorkerBlacklistPage::class)->name('admin.worker-blacklist');
     Route::get('/user-account', ListAccount::class)->name('admin.user-account');
 
 

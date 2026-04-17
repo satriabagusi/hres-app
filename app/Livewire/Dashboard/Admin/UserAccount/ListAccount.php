@@ -11,17 +11,45 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class ListAccount extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
+
     public $totalPaginate = 10;
 
     public ?string $search = null;
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTotalPaginate(): void
+    {
+        $this->resetPage();
+    }
 
     public $email, $password, $role, $name, $company_name;
     public $showPassword = false;
     public $generatedPassword = null;
     public $user_role = ['administrator', 'manager', 'hse', 'medical', 'security'];
+
+    protected function normalizeIdPayload($id): ?int
+    {
+        if (is_array($id)) {
+            $id = $id['id'] ?? null;
+        }
+
+        if ($id === null || $id === '') {
+            return null;
+        }
+
+        return (int) $id;
+    }
 
 
     public function addAccount()
@@ -71,13 +99,31 @@ class ListAccount extends Component
     public function deactivateAccount($id)
     {
         try {
-            $user = User::findOrFail($id);
+            $userId = $this->normalizeIdPayload($id);
+
+            if (!$userId) {
+                $this->dispatch('swal', title: 'Gagal', text: 'ID akun tidak valid.', icon: 'error');
+                return;
+            }
+
+            $user = User::withTrashed()->find($userId);
+
+            if (!$user) {
+                $this->dispatch('swal', title: 'Data Tidak Ditemukan', text: 'Akun tidak ditemukan di database.', icon: 'error');
+                return;
+            }
+
+            if ($user->trashed()) {
+                $this->dispatch('swal', title: 'Info', text: 'Akun ini sudah non-aktif.', icon: 'info');
+                return;
+            }
+
             $user->delete();
 
             $this->dispatch('swal', title: 'Berhasil', text: 'Akun berhasil di hapus/di non-aktifkan.', icon: 'success');
         } catch (\Throwable $th) {
             Log::error($th);
-            $this->dispatch('swal', title: 'Gagal', text: 'Terjadi kesalahan saat menghapus akun.' . $th->getMessage(), icon: 'error');
+            $this->dispatch('swal', title: 'Gagal', text: 'Terjadi kesalahan saat menghapus akun. ' . $th->getMessage(), icon: 'error');
         }
     }
 
@@ -85,7 +131,14 @@ class ListAccount extends Component
     public function activateAccount($id)
     {
         try {
-            $user = User::withTrashed()->find($id); // gunakan find() tanpa 'OrFail'
+            $userId = $this->normalizeIdPayload($id);
+
+            if (!$userId) {
+                $this->dispatch('swal', title: 'Gagal', text: 'ID akun tidak valid.', icon: 'error');
+                return;
+            }
+
+            $user = User::withTrashed()->find($userId);
 
             if (!$user) {
                 $this->dispatch('swal', title: 'Data Tidak Ditemukan', text: 'Akun tidak ditemukan di database.', icon: 'error');
@@ -126,6 +179,82 @@ class ListAccount extends Component
 
     }
 
+    #[On('unRejectAccount')]
+    public function unRejectAccount($id)
+    {
+        try {
+            $userId = $this->normalizeIdPayload($id);
+
+            if (!$userId) {
+                $this->dispatch('swal', title: 'Gagal', text: 'ID akun tidak valid.', icon: 'error');
+                return;
+            }
+
+            $user = User::withTrashed()->find($userId);
+
+            if (!$user) {
+                $this->dispatch('swal', title: 'Data Tidak Ditemukan', text: 'Akun tidak ditemukan di database.', icon: 'error');
+                return;
+            }
+
+            if ($user->role !== 'contractor') {
+                $this->dispatch('swal', title: 'Gagal', text: 'Fitur un-rejected hanya untuk akun contractor.', icon: 'error');
+                return;
+            }
+
+            if ($user->status !== 'rejected') {
+                $this->dispatch('swal', title: 'Info', text: 'Akun ini tidak berstatus rejected.', icon: 'info');
+                return;
+            }
+
+            $user->status = 'pending';
+            $user->save();
+
+            $this->dispatch('swal', title: 'Berhasil', text: 'Status akun berhasil diubah menjadi pending.', icon: 'success');
+        } catch (\Throwable $th) {
+            Log::error($th);
+            $this->dispatch('swal', title: 'Gagal', text: 'Terjadi kesalahan saat un-rejected akun. ' . $th->getMessage(), icon: 'error');
+        }
+    }
+
+    #[On('approvePendingAccount')]
+    public function approvePendingAccount($id)
+    {
+        try {
+            $userId = $this->normalizeIdPayload($id);
+
+            if (!$userId) {
+                $this->dispatch('swal', title: 'Gagal', text: 'ID akun tidak valid.', icon: 'error');
+                return;
+            }
+
+            $user = User::withTrashed()->find($userId);
+
+            if (!$user) {
+                $this->dispatch('swal', title: 'Data Tidak Ditemukan', text: 'Akun tidak ditemukan di database.', icon: 'error');
+                return;
+            }
+
+            if ($user->role !== 'contractor') {
+                $this->dispatch('swal', title: 'Gagal', text: 'Fitur ini hanya untuk akun contractor.', icon: 'error');
+                return;
+            }
+
+            if ($user->status !== 'pending') {
+                $this->dispatch('swal', title: 'Info', text: 'Akun ini tidak berstatus pending.', icon: 'info');
+                return;
+            }
+
+            $user->status = 'approved';
+            $user->save();
+
+            $this->dispatch('swal', title: 'Berhasil', text: 'Akun contractor berhasil di-approve.', icon: 'success');
+        } catch (\Throwable $th) {
+            Log::error($th);
+            $this->dispatch('swal', title: 'Gagal', text: 'Terjadi kesalahan saat approve akun pending. ' . $th->getMessage(), icon: 'error');
+        }
+    }
+
 
     #[Layout(
         'layouts.dashboard',
@@ -139,8 +268,16 @@ class ListAccount extends Component
     public function render()
     {
         $users = User::where('id', '!=', Auth::id())
-            // ->where('role', '!=', 'contractor')
             ->withTrashed()
+            ->when($this->search, function ($query) {
+                $query->where(function ($sub) {
+                    $sub->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('email', 'like', '%' . $this->search . '%')
+                        ->orWhere('company_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('role', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->orderBy('created_at', 'desc')
             ->paginate($this->totalPaginate);
 
         return view('livewire.dashboard.admin.user-account.list-account', [

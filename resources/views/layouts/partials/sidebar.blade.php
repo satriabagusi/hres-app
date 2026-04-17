@@ -22,7 +22,8 @@
         <div class="navbar-nav flex-row d-lg-none">
             <div class="nav-item dropdown">
                 <a class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                    <span class="avatar avatar-sm" style="background-image: url(https://ui-avatars.com/api/?name={{ Str::remove('.' , Str::replace(' ', '+', Auth::user()->name)) }})"></span>
+                    <span class="avatar avatar-sm"
+                        style="background-image: url(https://ui-avatars.com/api/?name={{ Str::remove('.', Str::replace(' ', '+', Auth::user()->name)) }})"></span>
                     <div class="d-none d-xl-block ps-2">
                         <div>{{ Auth::user()->name }}</div>
                         <div class="mt-1 small text-secondary">{{ Auth::user()->company_name }}</div>
@@ -77,49 +78,57 @@
                                         Data Perusahaan
                                     </span>
                                 </a>
+                                @if (Auth::user()->role == 'administrator')
+                                    <a class="dropdown-item {{ $company_project_active ?? '' }}"
+                                        href="{{ route('admin.list-project') }}">
+                                        <span class="nav-link-icon">
+                                            <i class="ti ti-files"></i>
+                                        </span>
+                                        <span class="nav-link-title">
+                                            Data Kontrak Project
+                                        </span>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </li>
                 @endif
                 @if (Auth::user()->role == 'administrator')
                     <div class="hr-text text-lime">Admin Menu</div>
-                    <li class="nav-item {{ $employee_account_active ?? '' }} dropdown">
-                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false"
-                            role="button" aria-expanded="true">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/layout-2 -->
-                                <i class="ti ti-file-database"></i>
+                    <li class="nav-item">
+                        <a class="nav-link {{ $list_employee_active ?? '' }}"
+                            href="{{ route('admin.user-account') }}">
+                            <span class="nav-link-icon">
+                                <i class="ti ti-file-dollar"></i>
                             </span>
-                            <span class="nav-link-title">Akun User</span>
+                            <span class="nav-link-title">
+                                List Akun
+                            </span>
                         </a>
-                        <div class="dropdown-menu {{ isset($employee_account_active) ? 'show' : '' }}">
-                            <div class="dropdown-menu-columns">
-                                <a class="dropdown-item {{ $list_employee_active ?? '' }}"
-                                    href="{{ route('admin.user-account') }}">
-                                    <span class="nav-link-icon">
-                                        <i class="ti ti-file-dollar"></i>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        List Akun
-                                    </span>
-                                </a>
-                                <a class="dropdown-item {{ $add_employee_active ?? '' }}" href="#">
-                                    <span class="nav-link-icon">
-                                        <i class="ti ti-clipboard-data"></i>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Tambah Akun
-                                    </span>
-                                </a>
-                            </div>
-                        </div>
+                        <a class="nav-link" href="{{ URL::to('/log-viewer') }}" target="_blank">
+                            <span class="nav-link-icon">
+                                <i class="ti ti-clipboard-data"></i>
+                            </span>
+                            <span class="nav-link-title">
+                                Log Aplikasi
+                            </span>
+                        </a>
+                        <a class="nav-link {{ $blacklist_data_active ?? '' }}"
+                            href="{{ route('admin.worker-blacklist') }}">
+                            <span class="nav-link-icon">
+                                <i class="ti ti-ban"></i>
+                            </span>
+                            <span class="nav-link-title">
+                                Blacklist Pekerja
+                            </span>
+                        </a>
                     </li>
                 @endif
                 @if (Auth::user()->role == 'contractor')
                     <li class="nav-item {{ $employee_active ?? '' }}">
                         <!--<a class="nav-link" href="{{ route('contractor.list-employee') }}">-->
                         <!--    <span class="nav-link-icon d-md-none d-lg-inline-block">-->
-                                <!-- Download SVG icon from http://tabler.io/icons/icon/home -->
+                        <!-- Download SVG icon from http://tabler.io/icons/icon/home -->
                         <!--        <i class="ti ti-users fs-2"></i>-->
                         <!--    </span>-->
                         <!--    <span class="nav-link-title">Data Pekerja</span>-->
@@ -136,8 +145,9 @@
                     </li>
                 @endif
                 <div class="hr-text text-pink">Akun</div>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('home') }}">
+                <li class="nav-item {{ $account_setting ?? '' }}">
+                    <a class="nav-link" href="#">
+                    {{-- <a class="nav-link" href="{{ route('account-setting') }}"> --}}
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
                             <!-- Download SVG icon from http://tabler.io/icons/icon/home -->
                             <i class="ti ti-home fs-2"></i>
@@ -151,7 +161,7 @@
                             <!-- Download SVG icon from http://tabler.io/icons/icon/home -->
                             <i class="ti ti-user fs-2"></i>
                         </span>
-                        <span class="nav-link-title">Halo, {{Auth::user()->name }}</span>
+                        <span class="nav-link-title">Halo, {{ Auth::user()->name }}</span>
                     </a>
                     <a class="nav-link" href="{{ route('logout') }}">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">

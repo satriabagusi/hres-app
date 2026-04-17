@@ -14,6 +14,9 @@ class ProjectContractor extends Model
         'memo_document',
         'start_date',
         'end_date',
+        'is_closed',
+        'closed_at',
+        'closed_by',
         'contractor_id'
     ];
     public function contractor()

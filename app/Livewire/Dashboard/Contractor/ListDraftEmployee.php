@@ -7,6 +7,7 @@ use App\Models\ContractorWorker;
 use App\Models\MedicalReview;
 use App\Models\ProjectContractor;
 use App\Models\SecurityReview;
+use App\Models\WorkerBlacklist;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,13 +39,16 @@ class ListDraftEmployee extends Component
     public ?string $search = null;
 
     public $selectedEmployeeId = null;
+    public bool $projectIsClosed = false;
     public $ktp_document = null;
+    public $skck_document = null;
     public $photo_document = null;
     public $mcu_document = null;
     public $form_b_document = null;
     public $age_justification_document = null;
 
     public $ktpUrl = null;
+    public $skckUrl = null;
     public $photoUrl = null;
     public $mcuUrl = null;
     public $formBUrl = null;
@@ -62,6 +66,12 @@ class ListDraftEmployee extends Component
 
     public function uploadEmployee()
     {
+
+        $project = ProjectContractor::find($this->projectContractId);
+        if (!$project || $project->is_closed) {
+            $this->dispatch('swal', title: 'Error', text: 'Proyek sudah ditutup. Tidak bisa upload pekerja baru.', icon: 'error');
+            return;
+        }
 
         if (!$this->employee_xls instanceof TemporaryUploadedFile || !$this->employee_xls->exists()) {
             $this->dispatch('swal', title: 'Error', text: 'Silakan pilih file Excel terlebih dahulu.', icon: 'error');
@@ -89,6 +99,11 @@ class ListDraftEmployee extends Component
             sleep(1.5); // Simulasi proses upload
 
             foreach ($this->parsedEmployees as $employee) {
+                $isBlacklisted = WorkerBlacklist::isNikBlacklisted($employee['nik']);
+                if ($isBlacklisted) {
+                    throw new \Exception("NIK {$employee['nik']} ({$employee['nama_lengkap']}) sedang dalam blacklist aktif dan tidak dapat didaftarkan.");
+                }
+
                 ContractorWorker::create([
                     'project_contractor_id' => $this->projectContractId,
                     'full_name' => $employee['nama_lengkap'],
@@ -125,6 +140,7 @@ class ListDraftEmployee extends Component
         }
 
         $this->ktpUrl = $employee->ktp_document ? asset('uploads/employee_documents/' . $employee->ktp_document) : null;
+        $this->skckUrl = $employee->skck_document ? asset('uploads/employee_documents/' . $employee->skck_document) : null;
         $this->photoUrl = $employee->photo ? asset('uploads/employee_documents/' . $employee->photo) : null;
         $this->formBUrl = $employee->form_b_document ? asset('uploads/employee_documents/' . $employee->form_b_document) : null;
 
@@ -141,16 +157,34 @@ class ListDraftEmployee extends Component
             position: $employee->position,
             jenis_kelamin: $employee->jenis_kelamin,
             ktpUrl: $this->ktpUrl,
+            skckUrl: $this->skckUrl,
             photoUrl: $this->photoUrl,
-            formbUrl: $this->form_b_document,
+            formbUrl: $this->formBUrl,
             ageJustificationUrl: $employee->age_justification_document,
             employeeAge: Carbon::parse($employee->birth_date)->age,
             domicile: $employee->domicile,
         );
     }
 
+    public function confirmSubmitEmployee($id)
+    {
+        $project = ProjectContractor::find($this->projectContractId);
+        if (!$project || $project->is_closed) {
+            $this->dispatch('swal', title: 'Error', text: 'Proyek sudah ditutup. Tidak bisa mengajukan pekerja.', icon: 'error');
+            return;
+        }
+
+        $this->dispatch('confirmSubmitEmployeeModal', employeeId: (int) $id);
+    }
+
     public function uploadDocument()
     {
+        $project = ProjectContractor::find($this->projectContractId);
+        if (!$project || $project->is_closed) {
+            $this->dispatch('swal', title: 'Error', text: 'Proyek sudah ditutup. Tidak bisa upload dokumen.', icon: 'error');
+            return;
+        }
+
         if ($this->selectedEmployeeId === null) {
             $this->dispatch('swal', title: 'Error', text: 'Silakan pilih pekerja terlebih dahulu.', icon: 'error');
             return;
@@ -169,8 +203,8 @@ class ListDraftEmployee extends Component
 
         if (
             !$this->ktp_document &&
+            !$this->skck_document &&
             !$this->photo_document &&
-            !$this->form_b_document &&
             (!$this->age_justification_document && !$ageDocRequired)
         ) {
             $this->dispatch('swal', title: 'Error', text: 'Silakan upload minimal satu dokumen.', icon: 'error');
@@ -184,19 +218,20 @@ class ListDraftEmployee extends Component
 
         $this->validate([
             'ktp_document' => 'nullable|file|mimes:pdf|max:2048',
-            'photo_document' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'form_b_document' => 'nullable|file|mimes:pdf|max:2048',
+            'skck_document' => 'nullable|file|mimes:pdf|max:2048',
+            'photo_document' => 'nullable|image|mimes:jpg,jpeg,png|dimensions:ratio=3/4|max:2048',
             'age_justification_document' => 'nullable|file|mimes:pdf|max:2048',
         ], [
             'ktp_document.file' => 'KTP harus berupa file.',
             'ktp_document.mimes' => 'KTP harus berupa file PDF.',
             'ktp_document.max' => 'Ukuran KTP terlalu besar. Maksimal 2MB.',
-            'photo_document.file' => 'Foto harus berupa file gambar.',
+            'skck_document.file' => 'SKCK harus berupa file.',
+            'skck_document.mimes' => 'SKCK harus berupa file PDF.',
+            'skck_document.max' => 'Ukuran SKCK terlalu besar. Maksimal 2MB.',
+            'photo_document.image' => 'Foto harus berupa file gambar yang valid.',
             'photo_document.mimes' => 'Foto harus berupa file gambar (jpg, jpeg, png).',
+            'photo_document.dimensions' => 'Rasio foto wajib 3:4 agar sesuai format ID Card.',
             'photo_document.max' => 'Ukuran foto terlalu besar. Maksimal 2MB.',
-            'form_b_document.file' => 'MCU harus berupa file.',
-            'form_b_document.mimes' => 'MCU harus berupa file PDF.',
-            'form_b_document.max' => 'Ukuran MCU terlalu besar. Maksimal 2MB.',
             'age_justification_document.file' => 'Justifikasi usia harus berupa file.',
             'age_justification_document.mimes' => 'Justifikasi usia harus berupa file PDF.',
             'age_justification_document.max' => 'Ukuran justifikasi usia terlalu besar. Maksimal 2MB.',
@@ -233,17 +268,36 @@ class ListDraftEmployee extends Component
             }
 
             if ($this->photo_document) {
+                if (!str_starts_with($this->photo_document->getClientOriginalName(), 'cropped_')) {
+                    $this->dispatch('swal', title: 'Error', text: 'Foto wajib di-crop terlebih dahulu sebelum upload.', icon: 'error');
+                    return;
+                }
+
                 if ($employee->photo && File::exists($destinationPath . '/' . $employee->photo)) {
                     File::delete($destinationPath . '/' . $employee->photo);
                 }
 
-                $photoFileName = time() . "_" . uniqid() . '.' . $this->photo_document->getClientOriginalExtension();
+                $photoFileName = 'cropped_' . time() . "_" . uniqid() . '.' . $this->photo_document->getClientOriginalExtension();
                 $storePhoto = File::move($this->photo_document->getRealPath(), $destinationPath . '/' . $photoFileName);
                 if (!$storePhoto) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file foto.', icon: 'error');
                     return;
                 }
                 $employee->photo = $photoFileName;
+            }
+
+            if ($this->skck_document) {
+                if ($employee->skck_document && File::exists($destinationPath . '/' . $employee->skck_document)) {
+                    File::delete($destinationPath . '/' . $employee->skck_document);
+                }
+
+                $skckFileName = time() . "_" . uniqid() . '.' . $this->skck_document->getClientOriginalExtension();
+                $storeSkck = File::move($this->skck_document->getRealPath(), $destinationPath . '/' . $skckFileName);
+                if (!$storeSkck) {
+                    $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file SKCK.', icon: 'error');
+                    return;
+                }
+                $employee->skck_document = $skckFileName;
             }
 
             if ($this->form_b_document) {
@@ -290,14 +344,21 @@ class ListDraftEmployee extends Component
     #[On('submitAllEmployee')]
     public function submitAllEmployee()
     {
+        $project = ProjectContractor::find($this->projectContractId);
+        if (!$project || $project->is_closed) {
+            $this->dispatch('swal', title: 'Error', text: 'Proyek sudah ditutup. Tidak bisa mengajukan pekerja.', icon: 'error');
+            return;
+        }
+
         DB::beginTransaction();
 
         try {
             $data = ContractorWorker::where('project_contractor_id', $this->projectContractId)
                 ->where('status', 'draft')
                 ->whereNotNull('ktp_document')
+                ->whereNotNull('skck_document')
                 ->whereNotNull('photo')
-                ->whereNotNull('form_b_document')
+                ->where('photo', 'like', 'cropped_%')
                 ->get();
 
             if ($data->isEmpty()) {
@@ -308,6 +369,13 @@ class ListDraftEmployee extends Component
             $submittedCount = 0;
 
             foreach ($data as $employee) {
+                $isBlacklisted = WorkerBlacklist::isNikBlacklisted($employee->nik);
+                if ($isBlacklisted) {
+                    $employee->status = 'rejected';
+                    $employee->save();
+                    continue;
+                }
+
                 $age = Carbon::parse($employee->birth_date)->age;
 
                 // Skip jika umur >= 56 dan tidak ada justifikasi
@@ -367,12 +435,42 @@ class ListDraftEmployee extends Component
     {
 
         $project_contractor = ProjectContractor::find($this->projectContractId);
+        if (!$project_contractor || $project_contractor->is_closed) {
+            $this->dispatch('swal', title: 'Error', text: 'Proyek sudah ditutup. Tidak bisa mengajukan pekerja.', icon: 'error');
+            return;
+        }
         // dd($project_contractor);
 
         DB::beginTransaction();
 
         try {
             $employee = ContractorWorker::find($id);
+
+            if (!$employee) {
+                $this->dispatch('swal', title: 'Error', text: 'Data pekerja tidak ditemukan.', icon: 'error');
+                return;
+            }
+
+            if (WorkerBlacklist::isNikBlacklisted($employee->nik)) {
+                $employee->status = 'rejected';
+                $employee->save();
+                $this->dispatch('swal', title: 'Error', text: 'Pekerja masuk blacklist aktif dan tidak dapat diajukan.', icon: 'error');
+                DB::commit();
+                return;
+            }
+
+            if (!$employee->ktp_document || !$employee->skck_document || !$employee->photo) {
+                $this->dispatch('swal', title: 'Error', text: 'KTP, SKCK, dan Foto wajib dilengkapi sebelum pengajuan.', icon: 'error');
+                DB::rollBack();
+                return;
+            }
+
+            if (!str_starts_with((string) $employee->photo, 'cropped_')) {
+                $this->dispatch('swal', title: 'Error', text: 'Foto wajib hasil crop sebelum pekerja dapat diajukan.', icon: 'error');
+                DB::rollBack();
+                return;
+            }
+
             $employee->status = 'submitted';
             $employee->save();
 
@@ -420,43 +518,44 @@ class ListDraftEmployee extends Component
     public function deleteEmployeeDraft($id){
         $employee = ContractorWorker::find($id);
 
-        // check if has document on it and delete the document
-        if($employee->ktp_document){
-            if(File::hash('uploads/employee_documents/'.$employee->ktp_document)){
-                File::delete('uploads/employee_documents/'.$employee->ktp_document);
-                Log::info('Deleting Employee | Ktp document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
-            }else{
-                Log::info('Deleting Employee | No ktp document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
-            }
+        if (!$employee) {
+            $this->dispatch('swal', title: 'Error', text: 'Data pekerja tidak ditemukan atau sudah terhapus.', icon: 'error');
+            return;
         }
 
-        if($employee->photo){
-            if(File::hash('uploads/employee_documents/'.$employee->photo)){
-                File::delete('uploads/employee_documents/'.$employee->photo);
-                Log::info('Deleting Employee | Photo found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
-            }else{
-                Log::info('Deleting Employee | No photo found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
-            }
-        }
+        $companyName = optional(optional($employee->project_contractor)->contractor)->company_name ?? '-';
+        $basePath = public_path('uploads/employee_documents/');
 
-        if($employee->form_b_document){
-            if(File::hash('uploads/employee_documents/'.$employee->form_b_document)){
-                File::delete('uploads/employee_documents/'.$employee->form_b_document);
-                Log::info('Deleting Employee | Form b document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
-            }else{
-                Log::info('Deleting Employee | No form b document found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+        $deleteIfExists = function (?string $fileName, string $label) use ($basePath, $employee, $companyName) {
+            if (!$fileName) {
+                return;
             }
-        }
+
+            $filePath = $basePath . $fileName;
+            if (File::exists($filePath)) {
+                File::delete($filePath);
+                Log::info('Deleting Employee | ' . $label . ' found for employee: ' . $employee->full_name . '(' . $companyName . ')');
+            } else {
+                Log::info('Deleting Employee | No ' . $label . ' found for employee: ' . $employee->full_name . '(' . $companyName . ')');
+            }
+        };
+
+        // Check worker documents and delete physical files safely.
+        $deleteIfExists($employee->ktp_document, 'KTP document');
+        $deleteIfExists($employee->photo, 'Photo');
+        $deleteIfExists($employee->form_b_document, 'Form B document');
+        $deleteIfExists($employee->skck_document, 'SKCK document');
+        $deleteIfExists($employee->age_justification_document, 'Age justification document');
 
         // Delete Medical Review and Security Review if exist
         if($employee->medical_review){
             $employee->medical_review->delete();
-            Log::info('Deleting Employee | Medical review found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            Log::info('Deleting Employee | Medical review found for employee: '.$employee->full_name."(".$companyName.")");
         }
 
         if($employee->security_review){
             $employee->security_review->delete();
-            Log::info('Deleting Employee | Security review found for employee: '.$employee->full_name."(".$employee->user->company_name.")");
+            Log::info('Deleting Employee | Security review found for employee: '.$employee->full_name."(".$companyName.")");
         }
 
         $employee->delete();
@@ -477,18 +576,44 @@ class ListDraftEmployee extends Component
     public function render()
     {
 
-        $employees = ContractorWorker::whereHas('project_contractor', function ($query) {
+        $employees = ContractorWorker::with(['medical_review', 'security_review', 'project_contractor.contractor'])
+            ->whereHas('project_contractor', function ($query) {
             $query->where('contractor_id', Auth::id());
         })
             ->where('status', 'draft')
+            ->when($this->projectContractId, function ($query) {
+                $query->where('project_contractor_id', $this->projectContractId);
+            })
+            ->whereNotIn('nik', WorkerBlacklist::query()->active()->select('nik'))
             ->when($this->search, function ($query) {
                 $query->where(function ($sub) {
                     $sub->where('full_name', 'like', '%' . $this->search . '%')
-                        ->orWhere('nik', 'like', '%' . $this->search . '%');
+                        ->orWhere('nik', 'like', '%' . $this->search . '%')
+                        ->orWhere('position', 'like', '%' . $this->search . '%');
                 });
             })
             ->paginate($this->totalPaginate)
             ->withQueryString(); // Penting agar query param tetap saat pagination
+
+        if ($this->projectContractId) {
+            $project = ProjectContractor::where('id', $this->projectContractId)
+                ->where('contractor_id', Auth::id())
+                ->first();
+            $this->projectIsClosed = (bool) ($project?->is_closed);
+        } else {
+            $this->projectIsClosed = false;
+        }
+
+        $activeBlacklistedNiks = WorkerBlacklist::query()
+            ->active()
+            ->whereIn('nik', $employees->getCollection()->pluck('nik')->unique()->toArray())
+            ->pluck('nik')
+            ->flip();
+
+        $employees->getCollection()->transform(function ($employee) use ($activeBlacklistedNiks) {
+            $employee->is_blacklisted_active = isset($activeBlacklistedNiks[$employee->nik]);
+            return $employee;
+        });
 
 
         return view('livewire.dashboard.contractor.list-draft-employee', [

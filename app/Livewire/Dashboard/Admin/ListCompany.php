@@ -18,11 +18,20 @@ class ListCompany extends Component
     // template bootstrap
     protected $paginationTheme = 'bootstrap';
 
+    public $totalPaginate = 10;
+
     public $pdfFileName = null;
     public $selectedCompanyName = null;
     public $selectedCompanyId = null;
+    public $selectedCompany = null;
 
     public ?string $search = '';
+
+    public function updatingTotalPaginate()
+    {
+        $this->resetPage();
+    }
+
     public function updatingSearch()
     {
         $this->resetPage();
@@ -38,6 +47,16 @@ class ListCompany extends Component
         $this->selectedCompanyName = $company->company_name;
         $this->selectedCompanyId = $id;
         $this->pdfFileName = 'uploads/contractor_documents/' . $company->document_contractor;
+    }
+
+    public function detailModal($id)
+    {
+        $company = User::with(['project_contractors'])
+            ->withCount(['project_contractors as total_projects'])
+            ->findOrFail($id);
+
+        $this->selectedCompany = $company;
+        $this->dispatch('showDetailCompanyModal', company: $company);
     }
 
     public function approveModal($id)
@@ -140,11 +159,11 @@ class ListCompany extends Component
                     $query->where('company_name', 'like', '%' . $this->search . '%')
                         ->orWhere('email', 'like', '%' . $this->search . '%');
                 })
-                ->paginate(10);
+                ->paginate($this->totalPaginate);
         }
         else {
             $companies = User::where('role', 'contractor')
-                ->paginate(10);
+                ->paginate($this->totalPaginate);
         }
 
         return view('livewire.dashboard.admin.list-company', [
