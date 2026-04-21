@@ -259,7 +259,7 @@ class ListDraftEmployee extends Component
                 }
 
                 $ktpFileName = time() . "_" . uniqid() . '.' . $this->ktp_document->getClientOriginalExtension();
-                $storeKtp = File::move($this->ktp_document->getRealPath(), $destinationPath . '/' . $ktpFileName);
+                $storeKtp = File::move($this->ktp_document->getPathname(), $destinationPath . '/' . $ktpFileName);
                 if (!$storeKtp) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file KTP.', icon: 'error');
                     return;
@@ -278,7 +278,7 @@ class ListDraftEmployee extends Component
                 }
 
                 $photoFileName = 'cropped_' . time() . "_" . uniqid() . '.' . $this->photo_document->getClientOriginalExtension();
-                $storePhoto = File::move($this->photo_document->getRealPath(), $destinationPath . '/' . $photoFileName);
+                $storePhoto = File::move($this->photo_document->getPathname(), $destinationPath . '/' . $photoFileName);
                 if (!$storePhoto) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file foto.', icon: 'error');
                     return;
@@ -292,7 +292,7 @@ class ListDraftEmployee extends Component
                 }
 
                 $skckFileName = time() . "_" . uniqid() . '.' . $this->skck_document->getClientOriginalExtension();
-                $storeSkck = File::move($this->skck_document->getRealPath(), $destinationPath . '/' . $skckFileName);
+                $storeSkck = File::move($this->skck_document->getPathname(), $destinationPath . '/' . $skckFileName);
                 if (!$storeSkck) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file SKCK.', icon: 'error');
                     return;
@@ -306,7 +306,7 @@ class ListDraftEmployee extends Component
                 }
 
                 $formBFileName = time() . "_" . uniqid() . '.' . $this->form_b_document->getClientOriginalExtension();
-                $storeFormB = File::move($this->form_b_document->getRealPath(), $destinationPath . '/' . $formBFileName);
+                $storeFormB = File::move($this->form_b_document->getPathname(), $destinationPath . '/' . $formBFileName);
                 if (!$storeFormB) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file Form B.', icon: 'error');
                     return;
@@ -320,7 +320,7 @@ class ListDraftEmployee extends Component
                 }
 
                 $ageJustificationFileName = time() . "_" . uniqid() . '.' . $this->age_justification_document->getClientOriginalExtension();
-                $storeAgeJustification = File::move($this->age_justification_document->getRealPath(), $destinationPath . '/' . $ageJustificationFileName);
+                $storeAgeJustification = File::move($this->age_justification_document->getPathname(), $destinationPath . '/' . $ageJustificationFileName);
                 if (!$storeAgeJustification) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file justifikasi usia.', icon: 'error');
                     return;

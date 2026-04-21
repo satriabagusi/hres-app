@@ -142,7 +142,7 @@ class ListEmployee extends Component
                 }
 
                 $mcuDocsName = time() . "_" . uniqid() . '.' . $this->mcu_document->getClientOriginalExtension();
-                $storeMcuDocs = File::move($this->mcu_document->getRealPath(), $destinationPath . '/' . $mcuDocsName);
+                $storeMcuDocs = File::move($this->mcu_document->getPathname(), $destinationPath . '/' . $mcuDocsName);
                 if (!$storeMcuDocs) {
                     $this->dispatch('swal', title: 'Error', text: 'Gagal menyimpan file foto.', icon: 'error');
                     return;

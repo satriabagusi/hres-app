@@ -58,8 +58,8 @@ jobs:
           /www/wwwroot/hres.movetech.my.id/hres-app
         cd /www/wwwroot/hres.movetech.my.id/hres-app
         mkdir -p storage bootstrap/cache
+        chown -R www:www .
         chmod -R 775 storage bootstrap/cache
-        chown -R www:www storage bootstrap/cache
         php artisan optimize:clear
     useTTY: true
     condition: ALWAYS
@@ -72,8 +72,8 @@ jobs:
       commands: |
         cd /www/wwwroot/hres.movetech.my.id/hres-app
         mkdir -p storage bootstrap/cache
+        chown -R www:www .
         chmod -R 775 storage bootstrap/cache
-        chown -R www:www storage bootstrap/cache
     condition: ALWAYS
   triggers:
   - type: BranchUpdateTrigger
