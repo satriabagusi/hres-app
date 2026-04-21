@@ -70,10 +70,12 @@
             color: white;
             border: 1px solid white;
             padding-right: 22px;
+            margin-left: 5px !important;
             height: 4rem !important;
             position: absolute;
-            right: -4mm;
-            width: 62mm;
+            /*right: -4mm;*/
+            left: 27mm;
+            width: 58mm;
         }
 
         .area-brown {
@@ -105,13 +107,13 @@
         }
 
         .hazard-box {
-            min-width: 2.1rem !important;
+            min-width: 2.2rem !important;
             max-width: 2.1rem !important;
             color: white;
             text-align: center;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 19px;
             font-weight: bold;
         }
 
@@ -207,7 +209,7 @@
             </div>
         </div>
 
-        <div class="row justify-content-end" style="margin-top: 5px;margin-right: -12mm; margin-left: -8mm">
+        <div class="row justify-content-end" style="margin-top: -14.5px;margin-right: -2mm; margin-left: -8mm">
             <div class="col-5 " style="color: white; font-size: 12px!important; margin-top: 2.6mm;margin-right: 5mm">
                 Violation&nbsp;&nbsp;
                 <strong class="fw-bold " style="font-size: 14px;letter-spacing: 2px">OOO</strong>
@@ -280,10 +282,11 @@
             </div>
             <div class="col-5">
                 <div class="sign-section me-1" style="margin-top: 3.3mm">
-                    <div style="line-height: 1; font-weight: bold; font-size: 8px !important">Section Head Security BLPP HSSE PT KPB</div>
-                    <img src="{{ asset('img/static/ttd-budi.png') }}" alt="Sign"
-                        style="position: absolute;width: auto;margin-top:-3px;z-index:-99;right: 4.5mm;height: 50px">
-                    <div class="fw-bold" style="position:absolute;z-index:2;font-size: 9.5px;bottom: 11.5mm;left: 53mm">Budi Darmansyah
+                    <div style="line-height: 1; font-weight: bold; font-size: 8px !important">Supervisor Security ISBL HSSE PT KPB</div>
+                    {{-- <div style="line-height: 1; font-weight: bold; font-size: 8px !important">Section Head Security BLPP HSSE PT KPB</div> --}}
+                    <img src="{{ asset('img/static/ttd-jemingan.png') }}" alt="Sign"
+                        style="position: absolute;width: auto;margin-top:-3px;z-index:-99;right: 14.5mm;height: 50px">
+                    <div class="fw-bold" style="position:absolute;z-index:2;font-size: 9.5px;bottom: 11.5mm;left: 53mm">Jemingan
                     </div>
                 </div>
             </div>
@@ -293,7 +296,7 @@
             <img src="{{ asset('img/static/logo-pertamina.png') }}" style="width: 73px" alt="">
             <br>
             Kartu ini milik PT KPB, jika menemukan kartu ini harap dikembalikan ke Security
-            PT KPB. Kantor UP, Jl. Yos Sudarso No 1 Balikpapan - 76111 Telp. 0542- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 514329
+            PT KPB. Kantor UP, Jl. Yos Sudarso No 1 Balikpapan - 76111 Telp. 0542-514329
         </p>
     </div>
 </body>
