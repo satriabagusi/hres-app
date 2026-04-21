@@ -68,20 +68,27 @@ Route::group(['middleware' => 'auth'], function () {
 
         return Pdf::view('layouts.layout-id-badge', compact('employee'))
                 ->withBrowsershot(function (Browsershot $browsershot) {
-                    $linuxChromePath = '/usr/bin/chromium-browser';
-                    $linuxNodePath = '/www/server/nvm/versions/node/v24.14.0/bin/node';
-                    $linuxNpmPath = '/www/server/nvm/versions/node/v24.14.0/bin/npm';
+                    $linuxChromePath = trim((string) ($_ENV['BROWSERSHOT_CHROME_PATH'] ?? '')) ?: null;
+                    $linuxNodePath = trim((string) ($_ENV['BROWSERSHOT_NODE_PATH'] ?? '/www/server/nvm/versions/node/v24.14.0/bin/node')) ?: null;
+                    $linuxNpmPath = trim((string) ($_ENV['BROWSERSHOT_NPM_PATH'] ?? '/www/server/nvm/versions/node/v24.14.0/bin/npm')) ?: null;
 
                     $browsershot
-                        ->noSandbox()
-                        ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox']);
+                        ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']);
 
                     if (PHP_OS_FAMILY === 'Linux') {
-                        // Do not call file_exists() here because open_basedir may block checks
-                        // for system binaries outside allowed paths.
-                        $browsershot->setChromePath($linuxChromePath);
-                        $browsershot->setNodeBinary($linuxNodePath);
-                        $browsershot->setNpmBinary($linuxNpmPath);
+                        if (!empty($linuxNodePath)) {
+                            $browsershot->setNodeBinary($linuxNodePath);
+                        }
+
+                        if (!empty($linuxNpmPath)) {
+                            $browsershot->setNpmBinary($linuxNpmPath);
+                        }
+
+                        // Do not hardcode /usr/bin/chromium-browser because in some servers
+                        // it points to snap wrapper and fails in php-fpm/open_basedir context.
+                        if (!empty($linuxChromePath)) {
+                            $browsershot->setChromePath($linuxChromePath);
+                        }
                     }
                 })
                 ->paperSize(85.6, 54)
