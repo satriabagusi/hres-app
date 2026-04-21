@@ -1994,9 +1994,7 @@
                     cancelButtonText: 'Batal',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        Livewire.dispatch('deleteEmployee', {
-                            id: data.id
-                        });
+                        @this.call('deleteEmployee', data.id);
                     }
                 })
             });
