@@ -554,6 +554,66 @@
                                                             @endif
                                                         </li>
 
+                                                        <li class="mt-1">Dokumen KTP:
+                                                            @if ($item->ktp_document)
+                                                                <a href="{{ asset('uploads/employee_documents/' . $item->ktp_document) }}"
+                                                                    target="_blank"
+                                                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                                                    <i class="ti ti-file-text"></i> Lihat KTP
+                                                                </a>
+                                                            @else
+                                                                <span class="text-muted">Belum tersedia</span>
+                                                            @endif
+                                                        </li>
+
+                                                        <li class="mt-1">Dokumen SKCK:
+                                                            @if ($item->skck_document)
+                                                                <a href="{{ asset('uploads/employee_documents/' . $item->skck_document) }}"
+                                                                    target="_blank"
+                                                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                                                    <i class="ti ti-file-text"></i> Lihat SKCK
+                                                                </a>
+                                                            @else
+                                                                <span class="text-muted">Belum tersedia</span>
+                                                            @endif
+                                                        </li>
+
+                                                        <li class="mt-1">Dokumen MCU:
+                                                            @if (optional($item->medical_review)->mcu_document)
+                                                                <a href="{{ asset('uploads/employee_documents/' . optional($item->medical_review)->mcu_document) }}"
+                                                                    target="_blank"
+                                                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                                                    <i class="ti ti-file-text"></i> Lihat MCU
+                                                                </a>
+                                                            @else
+                                                                <span class="text-muted">Belum tersedia</span>
+                                                            @endif
+                                                        </li>
+
+                                                        <li class="mt-1">Dokumen Form B:
+                                                            @if ($item->form_b_document)
+                                                                <a href="{{ asset('uploads/employee_documents/' . $item->form_b_document) }}"
+                                                                    target="_blank"
+                                                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                                                    <i class="ti ti-file-text"></i> Lihat Form B
+                                                                </a>
+                                                            @else
+                                                                <span class="text-muted">Belum tersedia</span>
+                                                            @endif
+                                                        </li>
+
+                                                        <li class="mt-1">Dokumen Justifikasi Usia:
+                                                            @if ($item->age_justification_document)
+                                                                <a href="{{ asset('uploads/employee_documents/' . $item->age_justification_document) }}"
+                                                                    target="_blank"
+                                                                    onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                                                    <i class="ti ti-file-text"></i> Lihat Justifikasi
+                                                                </a>
+                                                            @else
+                                                                <span class="text-muted">Belum tersedia</span>
+                                                            @endif
+                                                        </li>
+
                                                     </ul>
                                                 </div>
                                                 @if (Auth::user()->role == 'administrator' && !$item->is_blacklisted_active)

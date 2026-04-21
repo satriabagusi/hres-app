@@ -188,7 +188,7 @@
 
         <div class="info">
             <div class="employee-number">{{ $employee->security_card_number }}</div>
-            <div class="employee-name">{{ $employee->short_name }}</div>
+            <div class="employee-name">{{ data_get($employee, 'short_name') ?: Str::title($employee->full_name) }}</div>
             <div class="employee-company">{{ ucfirst($employee->user->company_name) }}</div>
             {{-- <div class="employee-company">{{ "PT Pratama Abadi Jaya" }}</div> --}}
         </div>

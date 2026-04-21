@@ -1,0 +1,68 @@
+version: 46
+jobs:
+- name: Pull from GitHub
+  steps:
+  - type: PullRepository
+    name: Pull from GitHub
+    remoteUrl: https://github.com/satriabagusi/hres-app.git
+    passwordSecret: github-token
+    refs: refs/heads/*
+    withLfs: false
+    force: true
+    condition: ALWAYS
+    optional: false
+  triggers:
+  - type: ScheduleTrigger
+    cronExpression: 0 */5 * * * ?
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  timeout: 3600
+- name: Deploy Production
+  steps:
+  - type: CheckoutStep
+    name: Checkout
+    cloneCredential:
+      type: DefaultCredential
+    withLfs: false
+    withSubmodules: false
+    condition: ALWAYS
+    optional: false
+  - type: CommandStep
+    name: Install Dependencies
+    runInContainer: false
+    interpreter:
+      type: DefaultInterpreter
+      commands: |
+        composer install --no-dev --optimize-autoloader
+        npm ci
+        npm run build
+    useTTY: true
+    condition: ALWAYS
+    optional: false
+  - type: CommandStep
+    name: Deploy ke server
+    runInContainer: false
+    interpreter:
+      type: DefaultInterpreter
+      commands: |
+        rsync -avz --delete \
+          --exclude='.env' \
+          --exclude='storage/' \
+          --exclude='.git/' \
+          --exclude='node_modules/' \
+          ./ \
+          /www/wwwroot/hres.ciptoonline.com/hres-app/
+        cd /www/wwwroot/hres.ciptoonline.com/hres-app
+        php artisan optimize:clear
+    useTTY: true
+    condition: ALWAYS
+    optional: false
+  triggers:
+  - type: BranchUpdateTrigger
+    branches: main
+    userMatch: anyone
+  retryCondition: never
+  maxRetries: 3
+  retryDelay: 30
+  timeout: 3600
