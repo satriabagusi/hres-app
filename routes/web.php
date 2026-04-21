@@ -68,12 +68,27 @@ Route::group(['middleware' => 'auth'], function () {
 
         return Pdf::view('layouts.layout-id-badge', compact('employee'))
                 ->withBrowsershot(function (Browsershot $browsershot) {
+                    $linuxChromePath = '/usr/bin/chromium-browser';
+                    $linuxNodePath = '/www/server/nvm/versions/node/v24.14.0/bin/node';
+                    $linuxNpmPath = '/www/server/nvm/versions/node/v24.14.0/bin/npm';
+
                     $browsershot
                         ->noSandbox()
-                        // ->setChromePath('/www/.puppeteer-cache-spatie-laravel-pdf/chrome/linux-137.0.7151.119/chrome-linux64/chrome')
                         ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox']);
-                        // ->setNodeBinary('/usr/bin/node')
-                        // ->setNpmBinary('/usr/bin/npm');
+
+                    if (PHP_OS_FAMILY === 'Linux') {
+                        if (file_exists($linuxChromePath)) {
+                            $browsershot->setChromePath($linuxChromePath);
+                        }
+
+                        if (file_exists($linuxNodePath)) {
+                            $browsershot->setNodeBinary($linuxNodePath);
+                        }
+
+                        if (file_exists($linuxNpmPath)) {
+                            $browsershot->setNpmBinary($linuxNpmPath);
+                        }
+                    }
                 })
                 ->paperSize(85.6, 54)
                 ->name('ID-Badge-' . $employee->full_name . '-' . time() . '.pdf');
