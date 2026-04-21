@@ -77,17 +77,11 @@ Route::group(['middleware' => 'auth'], function () {
                         ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox']);
 
                     if (PHP_OS_FAMILY === 'Linux') {
-                        if (file_exists($linuxChromePath)) {
-                            $browsershot->setChromePath($linuxChromePath);
-                        }
-
-                        if (file_exists($linuxNodePath)) {
-                            $browsershot->setNodeBinary($linuxNodePath);
-                        }
-
-                        if (file_exists($linuxNpmPath)) {
-                            $browsershot->setNpmBinary($linuxNpmPath);
-                        }
+                        // Do not call file_exists() here because open_basedir may block checks
+                        // for system binaries outside allowed paths.
+                        $browsershot->setChromePath($linuxChromePath);
+                        $browsershot->setNodeBinary($linuxNodePath);
+                        $browsershot->setNpmBinary($linuxNpmPath);
                     }
                 })
                 ->paperSize(85.6, 54)
