@@ -789,6 +789,23 @@
                                         onclick="window.open(this.href, 'new', 'popup'); return false;">
                                         <i class="ti ti-file-text"></i> Lihat File
                                     </a>
+                                @else
+                                    <span class="text-muted">Belum tersedia</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="160px"> SKCK </td>
+                            <td width="10px"> : </td>
+                            <td id="selected_employee_skck_document">
+                                @if ($selected_employee && $selected_employee->skck_document)
+                                    <a href="{{ asset('uploads/employee_documents/' . $selected_employee->skck_document) }}"
+                                        target="_blank" class="text-decoration-none"
+                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                        <i class="ti ti-file-text"></i> Lihat File
+                                    </a>
+                                @else
+                                    <span class="text-muted">Belum tersedia</span>
                                 @endif
                             </td>
                         </tr>
@@ -802,6 +819,38 @@
                                         onclick="window.open(this.href, 'new', 'popup'); return false;">
                                         <i class="ti ti-file-text"></i> Lihat File
                                     </a>
+                                @else
+                                    <span class="text-muted">Belum tersedia</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="160px"> MCU </td>
+                            <td width="10px"> : </td>
+                            <td id="selected_employee_mcu_document">
+                                @if ($selected_employee && optional($selected_employee->medical_review)->mcu_document)
+                                    <a href="{{ asset('uploads/employee_documents/' . optional($selected_employee->medical_review)->mcu_document) }}"
+                                        target="_blank" class="text-decoration-none"
+                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                        <i class="ti ti-file-text"></i> Lihat File
+                                    </a>
+                                @else
+                                    <span class="text-muted">Belum tersedia</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="160px"> Justifikasi Usia </td>
+                            <td width="10px"> : </td>
+                            <td id="selected_employee_age_justification_document">
+                                @if ($selected_employee && $selected_employee->age_justification_document)
+                                    <a href="{{ asset('uploads/employee_documents/' . $selected_employee->age_justification_document) }}"
+                                        target="_blank" class="text-decoration-none"
+                                        onclick="window.open(this.href, 'new', 'popup'); return false;">
+                                        <i class="ti ti-file-text"></i> Lihat File
+                                    </a>
+                                @else
+                                    <span class="text-muted">Belum tersedia</span>
                                 @endif
                             </td>
                         </tr>
