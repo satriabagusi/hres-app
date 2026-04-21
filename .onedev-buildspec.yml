@@ -57,10 +57,24 @@ jobs:
           ./ \
           /www/wwwroot/hres.movetech.my.id/hres-app
         cd /www/wwwroot/hres.movetech.my.id/hres-app
+        mkdir -p storage bootstrap/cache
+        chmod -R 775 storage bootstrap/cache
+        chown -R www:www storage bootstrap/cache
         php artisan optimize:clear
     useTTY: true
     condition: ALWAYS
     optional: false
+  - type: CommandStep
+    name: Fix Permission
+    runInContainer: false
+    interpreter:
+      type: DefaultInterpreter
+      commands: |
+        cd /www/wwwroot/hres.movetech.my.id/hres-app
+        mkdir -p storage bootstrap/cache
+        chmod -R 775 storage bootstrap/cache
+        chown -R www:www storage bootstrap/cache
+    condition: ALWAYS
   triggers:
   - type: BranchUpdateTrigger
     branches: main
