@@ -207,7 +207,7 @@
             </div>
         </div>
 
-        <div class="row justify-content-end" style="margin-top: 5px;margin-right: -2mm; margin-left: -8mm">
+        <div class="row justify-content-end" style="margin-top: 5px;margin-right: -12mm; margin-left: -8mm">
             <div class="col-5 " style="color: white; font-size: 12px!important; margin-top: 2.6mm;margin-right: 5mm">
                 Violation&nbsp;&nbsp;
                 <strong class="fw-bold " style="font-size: 14px;letter-spacing: 2px">OOO</strong>

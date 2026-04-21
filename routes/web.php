@@ -73,7 +73,14 @@ Route::group(['middleware' => 'auth'], function () {
                     $linuxNpmPath = trim((string) ($_ENV['BROWSERSHOT_NPM_PATH'] ?? '/www/server/nvm/versions/node/v24.14.0/bin/npm')) ?: null;
 
                     $browsershot
-                        ->setOption('args', ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']);
+                        ->setOption('args', [
+                            '--no-sandbox',
+                            '--disable-setuid-sandbox',
+                            '--disable-dev-shm-usage',
+                            '--disable-gpu',
+                            '--no-zygote',
+                            '--single-process',
+                        ]);
 
                     if (PHP_OS_FAMILY === 'Linux') {
                         if (!empty($linuxNodePath)) {
