@@ -52,8 +52,8 @@ jobs:
           --exclude='.git/' \
           --exclude='node_modules/' \
           ./ \
-          /www/wwwroot/hres.ciptoonline.com/hres-app/
-        cd /www/wwwroot/hres.ciptoonline.com/hres-app
+          /www/wwwroot/hres.movetech.my.id/hres-app
+        cd /www/wwwroot/hres.movetech.my.id/hres-app
         php artisan optimize:clear
     useTTY: true
     condition: ALWAYS
