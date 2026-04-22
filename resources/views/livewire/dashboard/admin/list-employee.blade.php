@@ -1435,6 +1435,9 @@
                 console.log('Show modal upload mcu');
 
                 modalDocumentMCUElement.addEventListener('shown.bs.modal', () => {
+                    const defaultHazardStatus = 'low_risk';
+                    const defaultFitStatus = 'fit';
+
                     const detail = payload?.data || {};
                     const workerName = detail?.full_name || '-';
                     const companyName = detail?.project_contractor?.contractor?.company_name || '-';
@@ -1542,6 +1545,9 @@
                         })
                     }
 
+                    selectEl.tomselect.setValue(defaultHazardStatus, true);
+                    @this.set('hazard_status', defaultHazardStatus);
+
                     if (!selectFitStatusEl.tomselect) {
                         // TomSelect
                         new TomSelect(selectFitStatusEl, {
@@ -1575,6 +1581,15 @@
                             }
                         })
                     }
+
+                    selectFitStatusEl.tomselect.setValue(defaultFitStatus, true);
+                    @this.set('fit_status', defaultFitStatus);
+
+                    const notesInput = document.getElementById('notes');
+                    if (notesInput) {
+                        notesInput.value = '';
+                    }
+                    @this.set('notes', '');
 
                     document.getElementById('notes').onchange = (e) => {
                         @this.set('notes', e.target.value);
