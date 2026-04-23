@@ -55,7 +55,20 @@
             color: white;
             font-weight: bold;
             font-size: 18px;
+            line-height: 1.1;
+            max-width: 64mm;
+            max-height: 2.2em;
+            overflow: hidden;
+            word-break: break-word;
             margin-bottom: 0.5mm;
+        }
+
+        .employee-name--sm {
+            font-size: 16px;
+        }
+
+        .employee-name--xs {
+            font-size: 14px;
         }
 
         .employee-company {
@@ -189,8 +202,38 @@
 
 
         <div class="info">
+            @php
+                $sourceName = data_get($employee, 'short_name') ?: $employee->full_name;
+                $normalizedName = preg_replace('/\s+/', ' ', trim($sourceName));
+                $nameWords = collect(explode(' ', $normalizedName))->filter()->values();
+
+                if ($nameWords->count() > 2) {
+                    $firstTwoWords = $nameWords->take(2)
+                        ->map(fn($word) => Str::title(Str::lower($word)))
+                        ->implode(' ');
+
+                    $remainingInitials = $nameWords->slice(2)
+                        ->map(fn($word) => Str::upper(Str::substr($word, 0, 1)))
+                        ->implode(' ');
+
+                    $displayName = trim($firstTwoWords . ' ' . $remainingInitials);
+                } else {
+                    $displayName = Str::title($normalizedName);
+                }
+
+                $nameLength = Str::length($displayName);
+                $nameClass = 'employee-name';
+
+                if ($nameLength > 30 && $nameLength <= 40) {
+                    $nameClass .= ' employee-name--sm';
+                }
+
+                if ($nameLength > 40) {
+                    $nameClass .= ' employee-name--xs';
+                }
+            @endphp
             <div class="employee-number">{{ $employee->security_card_number }}</div>
-            <div class="employee-name">{{ data_get($employee, 'short_name') ?: Str::title($employee->full_name) }}</div>
+            <div class="{{ $nameClass }}">{{ $displayName }}</div>
             <div class="employee-company">{{ ucfirst($employee->user->company_name) }}</div>
             {{-- <div class="employee-company">{{ "PT Pratama Abadi Jaya" }}</div> --}}
         </div>
