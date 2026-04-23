@@ -257,7 +257,12 @@
                                             @elseif($item->status == 'submitted')
                                                 <span class="badge bg-blue text-blue-fg">Diajukan</span>
                                             @elseif($item->status == 'rejected')
-                                                <span class="badge bg-red text-red-fg">Ditolak</span>
+                                                <button type="button"
+                                                    class="badge bg-red text-red-fg border-0 btn-show-reject-reason"
+                                                    data-source="Approval"
+                                                    data-reason="{{ optional($item->medical_review)->notes ?: (optional($item->security_review)->notes ?: 'Pekerja ditolak pada proses verifikasi.') }}">
+                                                    Ditolak
+                                                </button>
                                             @endif
                                         </td>
                                         <td class="text-center">
@@ -274,8 +279,12 @@
                                                         @elseif($medicalStatus == 'approved')
                                                             <span class="badge bg-teal text-teal-fg">Disetujui</span>
                                                         @elseif($medicalStatus == 'rejected')
-                                                            <span class="badge bg-red text-red-fg"
-                                                                wire:click='showModalAlasanRejectMcu({{ $item->id }})'>Ditolak</span>
+                                                            <button type="button"
+                                                                class="badge bg-red text-red-fg border-0 btn-show-reject-reason"
+                                                                data-source="Medical"
+                                                                data-reason="{{ optional($item->medical_review)->notes ?: 'Tidak ada keterangan.' }}">
+                                                                Ditolak
+                                                            </button>
                                                         @else
                                                             <span class="badge bg-secondary text-secondary-fg">Belum Ada</span>
                                                         @endif
@@ -294,7 +303,12 @@
                                                         @elseif($securityStatus == 'approved')
                                                             <span class="badge bg-teal text-teal-fg">Disetujui</span>
                                                         @elseif($securityStatus == 'rejected')
-                                                            <span class="badge bg-red text-red-fg">Ditolak</span>
+                                                            <button type="button"
+                                                                class="badge bg-red text-red-fg border-0 btn-show-reject-reason"
+                                                                data-source="Security"
+                                                                data-reason="{{ optional($item->security_review)->notes ?: 'Tidak ada keterangan.' }}">
+                                                                Ditolak
+                                                            </button>
                                                         @else
                                                             <span class="badge bg-secondary text-secondary-fg">Belum Ada</span>
                                                         @endif
@@ -307,6 +321,13 @@
                                                     <div>
                                                         @if ($item->is_blacklisted_active)
                                                             <span class="badge bg-dark text-dark-fg">Blacklisted</span>
+                                                        @elseif($item->status == 'rejected')
+                                                            <button type="button"
+                                                                class="badge bg-red text-red-fg border-0 btn-show-reject-reason"
+                                                                data-source="HSE"
+                                                                data-reason="{{ optional($item->security_review)->notes ?: 'Tidak ada keterangan.' }}">
+                                                                Ditolak
+                                                            </button>
                                                         @elseif($item->induction_card_number)
                                                             <span class="badge bg-teal text-teal-fg">Disetujui</span>
                                                         @else
@@ -474,8 +495,12 @@
                                                                 <span
                                                                     class="badge bg-info text-info-fg">{{ $item->medical_review->status_mcu }}</span>
                                                             @elseif($medicalStatus == 'rejected')
-                                                                <span class="badge bg-red text-red-fg"
-                                                                    wire:click='showModalAlasanRejectMcu({{ $item->id }})'>Ditolak</span>
+                                                                <button type="button"
+                                                                    class="badge bg-red text-red-fg border-0 btn-show-reject-reason"
+                                                                    data-source="Medical"
+                                                                    data-reason="{{ optional($item->medical_review)->notes ?: 'Tidak ada keterangan.' }}">
+                                                                    Ditolak
+                                                                </button>
                                                             @else
                                                                 <span class="badge bg-secondary text-secondary-fg">Belum Ada</span>
                                                             @endif
@@ -498,7 +523,12 @@
                                                                 <span
                                                                     class="badge bg-teal text-teal-fg">Disetujui</span>
                                                             @elseif($securityStatus == 'rejected')
-                                                                <span class="badge bg-red text-red-fg">Ditolak</span>
+                                                                <button type="button"
+                                                                    class="badge bg-red text-red-fg border-0 btn-show-reject-reason"
+                                                                    data-source="Security"
+                                                                    data-reason="{{ optional($item->security_review)->notes ?: 'Tidak ada keterangan.' }}">
+                                                                    Ditolak
+                                                                </button>
                                                             @else
                                                                 <span class="badge bg-secondary text-secondary-fg">Belum Ada</span>
                                                             @endif
@@ -1295,6 +1325,90 @@
             };
 
             document.addEventListener('click', function(e) {
+                const declineSecurityBtn = e.target.closest('.btn-decline-security');
+                if (declineSecurityBtn) {
+                    const workerId = Number(declineSecurityBtn.dataset.id);
+
+                    Swal.fire({
+                        title: 'Tolak Verifikasi Security',
+                        html: `
+                            <div class="text-start mb-2">
+                                <label>Alasan Penolakan:</label>
+                                <textarea id="reject-security-reason" class="form-control" rows="4" placeholder="Masukkan alasan penolakan"></textarea>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Simpan',
+                        cancelButtonText: 'Batal',
+                        preConfirm: () => {
+                            const reason = document.getElementById('reject-security-reason')?.value?.trim();
+                            if (!reason) {
+                                Swal.showValidationMessage('Alasan penolakan wajib diisi');
+                                return false;
+                            }
+                            return { reason };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Livewire.dispatch('rejectSecurity', {
+                                id: workerId,
+                                reason: result.value.reason,
+                            });
+                        }
+                    });
+                    return;
+                }
+
+                const declineHseBtn = e.target.closest('.btn-decline-hse');
+                if (declineHseBtn) {
+                    const workerId = Number(declineHseBtn.dataset.id);
+
+                    Swal.fire({
+                        title: 'Tolak Verifikasi HSE',
+                        html: `
+                            <div class="text-start mb-2">
+                                <label>Alasan Penolakan:</label>
+                                <textarea id="reject-hse-reason" class="form-control" rows="4" placeholder="Masukkan alasan penolakan"></textarea>
+                            </div>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Simpan',
+                        cancelButtonText: 'Batal',
+                        preConfirm: () => {
+                            const reason = document.getElementById('reject-hse-reason')?.value?.trim();
+                            if (!reason) {
+                                Swal.showValidationMessage('Alasan penolakan wajib diisi');
+                                return false;
+                            }
+                            return { reason };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Livewire.dispatch('rejectHse', {
+                                id: workerId,
+                                reason: result.value.reason,
+                            });
+                        }
+                    });
+                    return;
+                }
+
+                const rejectReasonBtn = e.target.closest('.btn-show-reject-reason');
+                if (rejectReasonBtn) {
+                    const source = rejectReasonBtn.dataset.source || 'Verifikasi';
+                    const reason = rejectReasonBtn.dataset.reason || 'Tidak ada keterangan.';
+
+                    Swal.fire({
+                        title: 'Alasan Ditolak',
+                        html: `${source}: <b>${reason}</b>`,
+                        confirmButtonText: 'OK',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        confirmButtonColor: '#3085d6',
+                    });
+                    return;
+                }
+
                 const blacklistBtn = e.target.closest('.btn-blacklist-worker');
                 if (!blacklistBtn) return;
 
@@ -1963,23 +2077,6 @@
                     }
                 });
             });
-
-            Livewire.on('loadingAlasanRejectMcu', (e) => {
-                Swal.fire({
-                    title: 'Mengambil Data...',
-                    html: 'Mohon tunggu sebentar',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading()
-                    }
-                });
-
-                console.log(e);
-
-                Livewire.dispatch('alasanRejectMcu', {
-                    id: e.data
-                });
-            })
 
             Livewire.on('showModalAlasanRejectMcu', (e) => {
                 Swal.close();

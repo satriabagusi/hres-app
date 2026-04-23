@@ -534,6 +534,81 @@ class ListEmployee extends Component
         }
     }
 
+    #[On('rejectSecurity')]
+    public function rejectSecurity($id, $reason = null): void
+    {
+        $reasonText = trim((string) $reason);
+        if ($reasonText === '') {
+            $this->dispatch('swal', title: 'Error', text: 'Alasan penolakan Security wajib diisi.', icon: 'error');
+            return;
+        }
+
+        DB::beginTransaction();
+        try {
+            $employee = ContractorWorker::find($id);
+            if (!$employee) {
+                DB::rollBack();
+                $this->dispatch('swal', title: 'Error', text: 'Data pekerja tidak ditemukan.', icon: 'error');
+                return;
+            }
+
+            $securityReview = SecurityReview::firstOrNew(['worker_id' => $id]);
+            $securityReview->reviewed_by = Auth::id();
+            $securityReview->status = 'rejected';
+            $securityReview->notes = $reasonText;
+            $securityReview->reviewed_at = now();
+            $securityReview->save();
+
+            $employee->status = 'rejected';
+            $employee->save();
+
+            DB::commit();
+            $this->dispatch('swal', title: 'Success', text: 'Verifikasi Security berhasil ditolak.', icon: 'success');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th);
+            $this->dispatch('swal', title: 'Error', text: 'Gagal menolak verifikasi Security.', icon: 'error');
+        }
+    }
+
+    #[On('rejectHse')]
+    public function rejectHse($id, $reason = null): void
+    {
+        $reasonText = trim((string) $reason);
+        if ($reasonText === '') {
+            $this->dispatch('swal', title: 'Error', text: 'Alasan penolakan HSE wajib diisi.', icon: 'error');
+            return;
+        }
+
+        DB::beginTransaction();
+        try {
+            $employee = ContractorWorker::find($id);
+            if (!$employee) {
+                DB::rollBack();
+                $this->dispatch('swal', title: 'Error', text: 'Data pekerja tidak ditemukan.', icon: 'error');
+                return;
+            }
+
+            $securityReview = SecurityReview::firstOrNew(['worker_id' => $id]);
+            $securityReview->reviewed_by = Auth::id();
+            $securityReview->status = 'rejected';
+            $securityReview->notes = '[HSE] ' . $reasonText;
+            $securityReview->reviewed_at = now();
+            $securityReview->save();
+
+            $employee->induction_card_number = null;
+            $employee->status = 'rejected';
+            $employee->save();
+
+            DB::commit();
+            $this->dispatch('swal', title: 'Success', text: 'Verifikasi HSE berhasil ditolak.', icon: 'success');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            Log::error($th);
+            $this->dispatch('swal', title: 'Error', text: 'Gagal menolak verifikasi HSE.', icon: 'error');
+        }
+    }
+
     private function generateSecurityBadgeNumber(): string
     {
         do {
@@ -569,7 +644,7 @@ class ListEmployee extends Component
 
     public function showModalAlasanRejectMcu($id): void
     {
-        $this->dispatch('loadingAlasanRejectMcu', data: $id);
+        $this->alasanRejectMcu($id);
     }
 
     #[On('deleteEmployee')]
