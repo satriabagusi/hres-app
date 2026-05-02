@@ -99,8 +99,7 @@ Route::group(['middleware' => 'auth'], function () {
                     }
                 })
                 ->paperSize(85.6, 54)
-                ->name('ID-Badge-' . $employee->full_name . '-' . time() . '.pdf');
-                // ->save(storage_path('app/public/ID-Badge-' . $employee->full_name . '-' . time() . '.pdf'));
+                ->name('ID-Badge-' . preg_replace('/[^\w\s-]/u', '', $employee->full_name) . '-' . time() . '.pdf');
 
     })->name('print-view.employee-id-badge');
 });
