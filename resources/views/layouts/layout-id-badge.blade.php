@@ -189,9 +189,9 @@
             style="position: absolute; z-index: -99; top: 0; left: -2px; height: 100%;">
 
         <div class="row bg-white py-top top-bar fw-bold">
-            <di class="col-2 me-4">
+            <div class="col-2 me-4">
                 APLOS
-            </di>
+            </div>
             <div class="col-7">
                 No.KTP {{ $employee->nik }}
             </div>
@@ -343,6 +343,4 @@
         </p>
     </div>
 </body>
-
-
 </html>
